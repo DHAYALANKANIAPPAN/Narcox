@@ -1,0 +1,74 @@
+const { getDb } = require('../../lib/db');
+const { analyze } = require('../../lib/detector');
+
+module.exports = async (req, res) => {
+  if (req.method !== 'POST') return res.status(200).send('alive');
+
+  const secret = req.headers['x-telegram-bot-api-secret-token'];
+  if (secret !== process.env.TELEGRAM_WEBHOOK_SECRET) {
+    return res.status(401).json({ ok: false });
+  }
+
+  const m = req.body.message || req.body.channel_post || req.body.edited_message;
+  if (!m) return res.json({ ok: true });
+
+  const text = m.text || m.caption || '';
+  const isPhoto = !!m.photo;
+  const a = analyze(text);
+
+  let imageLabels = [];
+  let imageRisk = 0;
+
+  if (isPhoto) {
+    try {
+      const vision = require('../../lib/vision');
+      const largestPhoto = m.photo[m.photo.length - 1];
+      const token = process.env.TELEGRAM_BOT_TOKEN;
+
+      const fileResp = await fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${largestPhoto.file_id}`);
+      const fileData = await fileResp.json();
+      const filePath = fileData.result.file_path;
+      const fileUrl = `https://api.telegram.org/file/bot${token}/${filePath}`;
+
+      const visionResult = await vision.analyzeImage(fileUrl);
+      imageLabels = visionResult.labels || [];
+      imageRisk = visionResult.risk || 0;
+    } catch (e) {
+      // vision not available or failed, continue without it
+    }
+  }
+
+  const risk = Math.max(a.risk, imageRisk, isPhoto ? 2 : 0);
+  if (risk === 0) return res.json({ ok: true });
+
+  let level = 'low';
+  if (risk >= 7) level = 'high';
+  else if (risk >= 4) level = 'medium';
+
+  const doc = {
+    platform: 'telegram',
+    chatId: String(m.chat.id),
+    chatTitle: m.chat.title || 'private',
+    userId: String(m.from?.id || m.sender_chat?.id || ''),
+    username: m.from?.username || m.from?.first_name || 'unknown',
+    text: text || '[photo]',
+    mediaType: isPhoto ? 'photo' : 'text',
+    ts: new Date(m.date * 1000),
+    risk,
+    level,
+    categories: a.categories || [],
+    matches: a.matches || [],
+    identifiers: a.identifiers || {},
+    reasons: a.reasons || [],
+    imageLabels
+  };
+
+  try {
+    const db = await getDb();
+    await db.collection('detections').insertOne(doc);
+  } catch (e) {
+    console.error('DB insert failed', e);
+  }
+
+  return res.json({ ok: true });
+};
