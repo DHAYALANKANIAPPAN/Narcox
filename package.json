@@ -1,27 +1,14 @@
 {
   "name": "narcox",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "directories": {
-    "doc": "docs",
-    "lib": "lib"
-  },
+  "description": "Detection engine, risk scoring, and network graph for identifying drug-sale activity hidden behind slang, emojis, leetspeak, and Hinglish.",
+  "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "test": "node test/detector.test.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Ishua-code/Narcox.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/Ishua-code/Narcox/issues"
-  },
-  "homepage": "https://github.com/Ishua-code/Narcox#readme",
   "dependencies": {
-    "mongodb": "^7.6.0"
+    "express": "^5.2.1",
+    "mongodb": "^6.10.0"
   }
 }
