@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NarcoX - Law Enforcement Intelligence Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#0a0a0a',
+                        foreground: '#fafafa',
+                        card: '#111111',
+                        'card-foreground': '#fafafa',
+                        primary: '#dc2626',
+                        'primary-foreground': '#fafafa',
+                        secondary: '#1f2937',
+                        'secondary-foreground': '#f9fafb',
+                        muted: '#262626',
+                        'muted-foreground': '#a3a3a3',
+                        accent: '#1f2937',
+                        'accent-foreground': '#f9fafb',
+                        destructive: '#dc2626',
+                        'destructive-foreground': '#fafafa',
+                        border: '#262626',
+                        input: '#262626',
+                        ring: '#dc2626',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .sidebar-item:hover {
+            background-color: rgba(220, 38, 38, 0.1);
+            border-left: 3px solid #dc2626;
+        }
+        .sidebar-item.active {
+            background-color: rgba(220, 38, 38, 0.2);
+            border-left: 3px solid #dc2626;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #111111 0%, #1f2937 100%);
+            border: 1px solid #262626;
+        }
+        .chart-container {
+            background: #111111;
+            border: 1px solid #262626;
+        }
+    </style>
+</head>
+<body class="bg-background text-foreground font-sans">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <div class="w-64 bg-card border-r border-border flex flex-col">
+            <!-- Logo -->
+            <div class="p-6 border-b border-border">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                        <span class="text-primary-foreground font-bold text-lg">N</span>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-foreground">NarcoX</h1>
+                        <p class="text-xs text-muted-foreground">Intelligence System</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <nav class="flex-1 p-4 space-y-2">
+                <a href="#dashboard" class="sidebar-item active flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"></path>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#evidence" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span>Evidence</span>
+                </a>
+                <a href="#network" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                    </svg>
+                    <span>Network Map</span>
+                </a>
+                <a href="#alerts" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                    </svg>
+                    <span>Alerts</span>
+                </a>
+                <a href="#reports" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                    <span>Reports</span>
+                </a>
+            </nav>
+
+            <!-- User Profile -->
+            <div class="p-4 border-t border-border">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
+                        <span class="text-secondary-foreground font-medium text-sm">JD</span>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-sm font-medium">Det. John Doe</p>
+                        <p class="text-xs text-muted-foreground">Badge #1234</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Header -->
+            <header class="bg-card border-b border-border px-6 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h1 class="text-2xl font-bold text-foreground">Intelligence Dashboard</h1>
+                        <p class="text-muted-foreground">Real-time law enforcement intelligence system</p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <div class="text-right">
+                            <p class="text-sm font-medium">Current Time</p>
+                            <p class="text-xs text-muted-foreground" id="current-time"></p>
+                        </div>
+                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <main class="flex-1 overflow-auto p-6">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="stat-card p-6 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-muted-foreground text-sm font-medium">Active Alerts</p>
+                                <p class="text-3xl font-bold text-primary" id="stat-total-alerts">23</p>
+                            </div>
+                            <div class="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center">
+                            <span class="text-green-500 text-sm font-medium">+12%</span>
+                            <span class="text-muted-foreground text-sm ml-2">from last week</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card p-6 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-muted-foreground text-sm font-medium">Evidence Packages</p>
+                                <p class="text-3xl font-bold text-blue-400" id="stat-evidence">156</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-400/20 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center">
+                            <span class="text-green-500 text-sm font-medium">+8%</span>
+                            <span class="text-muted-foreground text-sm ml-2">from last month</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card p-6 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-muted-foreground text-sm font-medium">High-Risk Entities</p>
+                                <p class="text-3xl font-bold text-purple-400" id="stat-entities">89</p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-400/20 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center">
+                            <span class="text-green-500 text-sm font-medium">+15%</span>
+                            <span class="text-muted-foreground text-sm ml-2">from last week</span>
+                        </div>
+                    </div>
+
+                    <div class="stat-card p-6 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-muted-foreground text-sm font-medium">Detections (30d)</p>
+                                <p class="text-3xl font-bold text-green-400" id="stat-detections">42</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-400/20 rounded-lg flex items-center justify-center">
+                                <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                        <div class="mt-4 flex items-center">
+                            <span class="text-green-500 text-sm font-medium">+23%</span>
+                            <span class="text-muted-foreground text-sm ml-2">from last month</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts and Tables -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                    <!-- Alert Trends Chart -->
+                    <div class="chart-container p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-4">Alert Trends (Last 7 Days)</h3>
+                        <div class="h-64 flex items-end justify-between space-x-2" id="chart-trends">
+                            <!-- Bars will go here -->
+                        </div>
+                    </div>
+
+                    <!-- Risk Distribution -->
+                    <div class="chart-container p-6 rounded-lg">
+                        <h3 class="text-lg font-semibold mb-4">Media Type Breakdown</h3>
+                        <div class="space-y-4" id="chart-media">
+                            <!-- Media bars will go here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Alerts Table -->
+                <div class="chart-container p-6 rounded-lg">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-lg font-semibold">Recent Alerts</h3>
+                        <button class="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
+                            View All
+                        </button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="border-b border-border">
+                                    <th class="text-left py-3 px-4 font-medium text-muted-foreground">ID</th>
+                                    <th class="text-left py-3 px-4 font-medium text-muted-foreground">Platform</th>
+                                    <th class="text-left py-3 px-4 font-medium text-muted-foreground">User</th>
+                                    <th class="text-left py-3 px-4 font-medium text-muted-foreground">Risk</th>
+                                    <th class="text-left py-3 px-4 font-medium text-muted-foreground">Text snippet</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recent-alerts-tbody">
+                                <!-- Table rows will be injected here via JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- We will include api.js here in the next step -->
+    <script src="js/api.js"></script>
+    <script src="js/main.js"></script>
+    
+    <script>
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('current-time').textContent = timeString;
+        }
+        
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // Sidebar navigation
+        document.querySelectorAll('.sidebar-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
