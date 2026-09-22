@@ -80,5 +80,43 @@
       "imageLabels": [],
       "simulated": true
     }
-  ]
+  ],
+  "/api/evidence": [
+    {
+      "detectionId": "abc1",
+      "content": {"platform": "telegram", "userId": "seller_99", "text": "h e r o i n available now"},
+      "contentHash": "8f434346648f6b96df89dda901c5176b10a6d83961dd3c1ac88b59b2dc327aa4",
+      "custody": [
+        {"action": "CAPTURED", "by": "system", "at": "2026-09-22T08:00:00.000Z"},
+        {"action": "PACKAGED", "by": "Det. John Doe", "at": "2026-09-22T10:15:00.000Z"}
+      ],
+      "prevHash": "GENESIS",
+      "packageHash": "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8",
+      "createdAt": "2026-09-22T10:15:00.000Z",
+      "verified": true
+    },
+    {
+      "detectionId": "xyz9",
+      "content": {"platform": "telegram", "userId": "hacker22"},
+      "contentHash": "a3b2c1...",
+      "custody": [{"action": "CAPTURED", "by": "system", "at": "2026-09-20T08:00:00.000Z"}],
+      "prevHash": "5e8848...",
+      "packageHash": "invalid_hash_example",
+      "createdAt": "2026-09-20T08:15:00.000Z",
+      "verified": false
+    }
+  ],
+  "/api/network": {
+    "nodes": [
+      {"id": "user:seller_99", "type": "account", "label": "@seller_99", "risk": 9, "count": 15, "degree": 5, "role": "supplier?"},
+      {"id": "user:buyer_01", "type": "account", "label": "@buyer_01", "risk": 4, "count": 2, "degree": 1, "role": "buyer/promoter?"},
+      {"id": "chat:-100", "type": "group", "label": "Dark Alley", "risk": 9, "count": 40, "degree": 8},
+      {"id": "phones:+91 9876543210", "type": "phones", "label": "📞 +91 98...", "risk": 9, "count": 10, "degree": 2}
+    ],
+    "edges": [
+      {"from": "user:seller_99", "to": "chat:-100", "kind": "posts_in"},
+      {"from": "user:buyer_01", "to": "chat:-100", "kind": "posts_in"},
+      {"from": "user:seller_99", "to": "phones:+91 9876543210", "kind": "uses"}
+    ]
+  }
 }
