@@ -138,8 +138,11 @@
             </header>
 
             <!-- Dashboard Content -->
-            <main class="flex-1 overflow-auto p-6">
-                <!-- Stats Cards -->
+            <main class="flex-1 overflow-auto p-6" id="main-content">
+                
+                <!-- DASHBOARD PAGE -->
+                <div id="page-dashboard" class="page-section">
+                    <!-- Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                     <div class="stat-card p-6 rounded-lg">
                         <div class="flex items-center justify-between">
@@ -258,6 +261,36 @@
                         </table>
                     </div>
                 </div>
+                </div> <!-- End of Dashboard Page -->
+
+                <!-- ALERTS PAGE -->
+                <div id="page-alerts" class="page-section hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold">Live Alerts Feed</h2>
+                            <p class="text-muted-foreground">Real-time stream of high-risk drug trafficking detections.</p>
+                        </div>
+                    </div>
+                    <div class="chart-container p-6 rounded-lg">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b border-border">
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Time</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Platform</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">User</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Risk</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Message</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="alerts-page-tbody">
+                                    <!-- Alerts will appear here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div> <!-- End of Alerts Page -->
             </main>
         </div>
     </div>
@@ -282,12 +315,18 @@
         updateTime();
         setInterval(updateTime, 1000);
 
-        // Sidebar navigation
+        // Sidebar navigation & Page Switching
         document.querySelectorAll('.sidebar-item').forEach(item => {
             item.addEventListener('click', function(e) {
-                e.preventDefault();
+                // e.preventDefault(); // allow hash to update in URL
                 document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
                 this.classList.add('active');
+                
+                // Hide all pages, show the target page
+                const targetId = this.getAttribute('href').replace('#', 'page-');
+                document.querySelectorAll('.page-section').forEach(page => page.classList.add('hidden'));
+                const targetPage = document.getElementById(targetId);
+                if (targetPage) targetPage.classList.remove('hidden');
             });
         });
     </script>
