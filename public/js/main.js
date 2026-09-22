@@ -96,6 +96,11 @@ async function updateTelegram() {
         if(!tbody) return;
         tbody.innerHTML = '';
         
+        if (detections.length === 0) {
+            tbody.innerHTML = `<tr id="empty-state"><td colspan="5" class="py-6 text-center text-muted-foreground font-medium">No active alerts</td></tr>`;
+            return;
+        }
+
         detections.forEach(det => {
             const tr = document.createElement('tr');
             tr.className = 'border-b border-border hover:bg-muted/50';
@@ -138,6 +143,11 @@ async function updateInstagram() {
         if(!tbody) return;
         tbody.innerHTML = '';
         
+        if (detections.length === 0) {
+            tbody.innerHTML = `<tr id="empty-state"><td colspan="5" class="py-6 text-center text-muted-foreground font-medium">No active alerts</td></tr>`;
+            return;
+        }
+
         detections.forEach(det => {
             const tr = document.createElement('tr');
             tr.className = 'border-b border-border hover:bg-muted/50';
@@ -163,6 +173,12 @@ async function updateEvidence() {
     if (!evidence || !container) return;
     
     container.innerHTML = '';
+    
+    if (evidence.length === 0) {
+        container.innerHTML = `<div id="empty-state" class="py-6 text-center text-muted-foreground font-medium">No forensic packages available</div>`;
+        return;
+    }
+
     evidence.forEach(ev => {
         const verifiedBadge = ev.verified 
             ? `<span class="hash-verified text-sm px-3 py-1 bg-green-500/10 border border-green-500/30 rounded">✓ HASH VERIFIED</span>`
