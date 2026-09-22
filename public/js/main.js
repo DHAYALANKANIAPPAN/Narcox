@@ -157,11 +157,104 @@ async function updateInstagram() {
     }
 }
 
+async function updateEvidence() {
+    const evidence = await API.get('/api/evidence');
+    const container = document.getElementById('evidence-container');
+    if (!evidence || !container) return;
+    
+    container.innerHTML = '';
+    evidence.forEach(ev => {
+        const verifiedBadge = ev.verified 
+            ? `<span class="hash-verified text-sm px-3 py-1 bg-green-500/10 border border-green-500/30 rounded">✓ HASH VERIFIED</span>`
+            : `<span class="text-sm px-3 py-1 bg-red-500/10 border border-red-500/30 text-red-500 rounded">✗ TAMPERED</span>`;
+            
+        const custodyHtml = ev.custody.map(c => 
+            `<div class="flex justify-between text-xs text-muted-foreground"><span class="font-mono">${c.action} by ${c.by}</span> <span>${new Date(c.at).toLocaleString()}</span></div>`
+        ).join('');
+        
+        container.innerHTML += `
+            <div class="stat-card p-6 rounded-lg border-l-4 ${ev.verified ? 'border-green-500' : 'border-red-500'}">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <h3 class="font-mono text-lg text-primary">CASE #${ev.detectionId}</h3>
+                        <p class="text-xs text-muted-foreground mt-1">Package Hash: <span class="font-mono text-[10px] bg-muted/30 p-1 rounded break-all">${ev.packageHash}</span></p>
+                    </div>
+                    ${verifiedBadge}
+                </div>
+                <div class="bg-black/50 p-3 rounded mb-4 font-mono text-xs border border-border">
+                    <div class="text-blue-400 mb-2">RAW CONTENT:</div>
+                    ${JSON.stringify(ev.content, null, 2)}
+                </div>
+                <div class="space-y-2 mb-4">
+                    <div class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Custody Chain</div>
+                    ${custodyHtml}
+                </div>
+                <button onclick="alert('Downloading forensic package for ${ev.detectionId}')" class="text-xs bg-primary hover:bg-red-700 text-white px-4 py-2 rounded transition-colors flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    Download Forensic JSON
+                </button>
+            </div>
+        `;
+    });
+}
+
+let networkInitialized = false;
+async function updateNetwork() {
+    // Only init the physics network once so it doesn't reset every 5 seconds
+    if (networkInitialized) return;
+    
+    const data = await API.get('/api/network');
+    const container = document.getElementById('network-map-container');
+    if (!data || !container || !window.vis) return;
+    
+    networkInitialized = true;
+    
+    // Map data for vis-network
+    const nodes = new vis.DataSet(data.nodes.map(n => {
+        let color = '#3b82f6'; // account blue
+        if (n.type === 'group') color = '#a855f7'; // group purple
+        if (n.type === 'phones') color = '#22c55e'; // phone green
+        if (n.risk >= 8) color = '#ef4444'; // high risk red
+        
+        return {
+            id: n.id,
+            label: n.label + (n.role ? `\n(${n.role})` : ''),
+            value: n.risk * n.degree, // Size based on risk and connections
+            color: { background: color, border: '#111' },
+            font: { color: '#fff', face: 'monospace', size: 12 }
+        };
+    }));
+    
+    const edges = new vis.DataSet(data.edges.map(e => ({
+        from: e.from,
+        to: e.to,
+        label: e.kind,
+        color: { color: '#404040' },
+        font: { color: '#a3a3a3', size: 10, align: 'middle' },
+        arrows: 'to'
+    })));
+
+    const options = {
+        nodes: { shape: 'dot', scaling: { min: 10, max: 30 } },
+        physics: {
+            forceAtlas2Based: { gravitationalConstant: -50, centralGravity: 0.01, springLength: 100, springConstant: 0.08 },
+            maxVelocity: 50,
+            solver: 'forceAtlas2Based',
+            timestep: 0.35,
+            stabilization: { iterations: 150 }
+        }
+    };
+    
+    new vis.Network(container, { nodes, edges }, options);
+}
+
 function runAllUpdates() {
     updateDashboard();
     updateAlerts();
     updateTelegram();
     updateInstagram();
+    updateEvidence();
+    updateNetwork();
 }
 
 // Tell our poll() tool to run everything every 5 seconds!

@@ -33,22 +33,40 @@
             }
         }
     </script>
+    <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <style>
         .sidebar-item:hover {
             background-color: rgba(220, 38, 38, 0.1);
             border-left: 3px solid #dc2626;
         }
-        .sidebar-item.active {
-            background-color: rgba(220, 38, 38, 0.2);
-            border-left: 3px solid #dc2626;
+        .page-section { display: none; }
+        .page-section:not(.hidden) { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .stat-card { background: linear-gradient(145deg, #111 0%, #1a1a1a 100%); border: 1px solid #333; }
+        .chart-container { background: #111; border: 1px solid #333; }
+        .sidebar-item.active { background: #dc2626; color: #fff; }
+        
+        /* Hackathon Wow Factor: Evidence Hash Scanning Animation */
+        @keyframes scanHash {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
         }
-        .stat-card {
-            background: linear-gradient(135deg, #111111 0%, #1f2937 100%);
-            border: 1px solid #262626;
+        .hash-verified {
+            background: linear-gradient(90deg, #166534 0%, #22c55e 50%, #166534 100%);
+            background-size: 200% auto;
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            animation: scanHash 3s linear infinite;
+            font-family: monospace;
         }
-        .chart-container {
-            background: #111111;
-            border: 1px solid #262626;
+        
+        #network-map-container {
+            width: 100%;
+            height: 600px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 0.5rem;
         }
     </style>
 </head>
@@ -73,8 +91,7 @@
             <nav class="flex-1 p-4 space-y-2">
                 <a href="#dashboard" class="sidebar-item active flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5a2 2 0 012-2h4a2 2 0 012 2v6H8V5z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
                     </svg>
                     <span>Dashboard</span>
                 </a>
@@ -86,7 +103,7 @@
                 </a>
                 <a href="#network" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
                     </svg>
                     <span>Network Map</span>
                 </a>
@@ -281,6 +298,35 @@
                     </div>
                 </div>
                 </div> <!-- End of Dashboard Page -->
+
+                <!-- EVIDENCE PAGE -->
+                <div id="page-evidence" class="page-section hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-primary">Cryptographic Evidence Ledger</h2>
+                            <p class="text-muted-foreground">Immutable packages securely hashed for prosecution.</p>
+                        </div>
+                    </div>
+                    <div class="grid gap-6" id="evidence-container">
+                        <!-- Evidence cards injected here -->
+                    </div>
+                </div>
+
+                <!-- NETWORK MAP PAGE -->
+                <div id="page-network" class="page-section hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-primary">Entity Network Map</h2>
+                            <p class="text-muted-foreground">AI-driven relationship mapping (Sellers, Buyers, Crypto, Phones)</p>
+                        </div>
+                        <div class="flex space-x-2 text-xs">
+                            <span class="px-2 py-1 bg-red-500/20 text-red-400 rounded">● High Risk</span>
+                            <span class="px-2 py-1 bg-blue-500/20 text-blue-400 rounded">● Accounts</span>
+                            <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded">● Phones</span>
+                        </div>
+                    </div>
+                    <div id="network-map-container"></div>
+                </div>
 
                 <!-- ALERTS PAGE -->
                 <div id="page-alerts" class="page-section hidden">
