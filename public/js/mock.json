@@ -1,0 +1,53 @@
+{
+  "/api/stats": {
+    "totalAlerts": 142,
+    "evidencePackages": 38,
+    "highRiskEntities": 12,
+    "detections30d": 890,
+    "highRisk": 45,
+    "byType": [
+      {"_id": "text", "n": 400},
+      {"_id": "photo", "n": 350},
+      {"_id": "comment", "n": 140}
+    ],
+    "recent": [
+      {
+        "_id": "abc1",
+        "platform": "telegram",
+        "chatTitle": "Dark Alley",
+        "username": "seller_99",
+        "text": "h e r o i n available now",
+        "risk": 9,
+        "level": "high",
+        "ts": "2026-09-22T08:00:00.000Z"
+      }
+    ]
+  },
+  "/api/alerts": [
+    {
+      "_id": "abc1",
+      "platform": "telegram",
+      "chatTitle": "Dark Alley",
+      "username": "seller_99",
+      "text": "h e r o i n available now",
+      "risk": 9,
+      "level": "high",
+      "ts": "2026-09-22T08:00:00.000Z"
+    },
+    {
+      "_id": "abc2",
+      "platform": "instagram",
+      "chatTitle": "IG DM",
+      "username": "pharma_bro",
+      "text": "❄️ available dm me",
+      "risk": 8,
+      "level": "high",
+      "ts": "2026-09-22T08:15:00.000Z"
+    }
+  ],
+  "/api/telegram/status": {
+    "connected": true,
+    "webhook": "https://narcox.vercel.app/api/telegram/webhook",
+    "pending": 0
+  }
+}
