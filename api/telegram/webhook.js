@@ -1,8 +1,9 @@
-const { getDb } = require('../../lib/db');
-const { analyze } = require('../../lib/detector');
+
 
 module.exports = async (req, res) => {
   try {
+    const { getDb } = require('../../lib/db');
+    const { analyze } = require('../../lib/detector');
     if (req.method !== 'POST') return res.status(200).send('alive');
 
     const secret = req.headers['x-telegram-bot-api-secret-token'];
