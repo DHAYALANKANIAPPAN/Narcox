@@ -5,9 +5,11 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(200).send('alive');
 
   const secret = req.headers['x-telegram-bot-api-secret-token'];
+  console.log('RECEIVED:', JSON.stringify(secret));
+  console.log('EXPECTED:', JSON.stringify(process.env.TELEGRAM_WEBHOOK_SECRET));
   if (secret !== process.env.TELEGRAM_WEBHOOK_SECRET) {
     return res.status(401).json({ ok: false });
-  }
+}
 
   const m = req.body.message || req.body.channel_post || req.body.edited_message;
   if (!m) return res.json({ ok: true });
