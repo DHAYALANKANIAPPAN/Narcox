@@ -64,5 +64,21 @@
       "identifiers": {"phones": ["+91 9876543210"], "emails": [], "upi": [], "wallets": [], "urls": []},
       "imageLabels": []
     }
+  ],
+  "/api/detections?platform=instagram&minRisk=4&days=30": [
+    {
+      "_id": "ig_001",
+      "platform": "instagram",
+      "chatTitle": "IG DM",
+      "username": "pharma_bro",
+      "text": "❄️ available dm me",
+      "risk": 8,
+      "level": "high",
+      "ts": "2026-09-22T08:15:00.000Z",
+      "reasons": ["Matched emoji ❄️ (cocaine)"],
+      "identifiers": {},
+      "imageLabels": [],
+      "simulated": true
+    }
   ]
 }

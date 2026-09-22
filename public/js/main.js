@@ -127,10 +127,41 @@ async function updateTelegram() {
     }
 }
 
+async function updateInstagram() {
+    // We can hardcode the query params for now like we did for Telegram
+    const minRisk = 4;
+    const days = 30;
+    const detections = await API.get(`/api/detections?platform=instagram&minRisk=${minRisk}&days=${days}`);
+    
+    if (detections) {
+        const tbody = document.getElementById('instagram-page-tbody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        
+        detections.forEach(det => {
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-border hover:bg-muted/50';
+            const timeStr = new Date(det.ts).toLocaleTimeString();
+            
+            const simulatedTag = det.simulated ? `<span class="ml-2 px-2 py-0.5 bg-yellow-500/20 text-yellow-500 text-[10px] rounded uppercase">Simulated</span>` : '';
+            
+            tr.innerHTML = `
+                <td class="py-3 px-4 text-sm text-muted-foreground">${timeStr}</td>
+                <td class="py-3 px-4">${esc(det.chatTitle)}</td>
+                <td class="py-3 px-4">${esc(det.username)}</td>
+                <td class="py-3 px-4">${riskBadge(det.risk)}</td>
+                <td class="py-3 px-4">${esc(det.text)} ${simulatedTag}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+}
+
 function runAllUpdates() {
     updateDashboard();
     updateAlerts();
     updateTelegram();
+    updateInstagram();
 }
 
 // Tell our poll() tool to run everything every 5 seconds!

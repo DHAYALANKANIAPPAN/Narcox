@@ -102,6 +102,19 @@
                     </svg>
                     <span>Telegram</span>
                 </a>
+                <a href="#instagram" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h16v16H4z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6 M16.5 7.5v.01"></path>
+                    </svg>
+                    <span>Instagram</span>
+                </a>
+                <a href="#settings" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    <span>Settings</span>
+                </a>
                 <a href="#reports" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -338,6 +351,60 @@
                         </div>
                     </div>
                 </div> <!-- End of Telegram Page -->
+
+                <!-- INSTAGRAM PAGE -->
+                <div id="page-instagram" class="page-section hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-pink-500">Instagram Operations</h2>
+                            <p class="text-muted-foreground">Monitor webhook ingested Instagram DMs and Comments.</p>
+                        </div>
+                    </div>
+                    <div class="chart-container p-6 rounded-lg">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b border-border">
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Time</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Chat</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">User</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Risk</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Message</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="instagram-page-tbody">
+                                    <!-- Instagram data will appear here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div> <!-- End of Instagram Page -->
+
+                <!-- SETTINGS PAGE -->
+                <div id="page-settings" class="page-section hidden">
+                    <h2 class="text-2xl font-bold mb-6">System Settings</h2>
+                    <div class="grid gap-6 md:grid-cols-2">
+                        <div class="chart-container p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-4 text-primary">Connected Sources</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-center justify-between"><span class="text-muted-foreground">Telegram Bot</span> <span class="text-green-400">Connected ✓</span></li>
+                                <li class="flex items-center justify-between"><span class="text-muted-foreground">Instagram Graph API</span> <span class="text-green-400">Connected ✓</span></li>
+                                <li class="flex items-center justify-between"><span class="text-muted-foreground">WhatsApp</span> <span class="text-red-400">Not Supported (E2E Encrypted)</span></li>
+                            </ul>
+                        </div>
+                        <div class="chart-container p-6 rounded-lg">
+                            <h3 class="text-lg font-semibold mb-4 text-primary">Risk Thresholds</h3>
+                            <ul class="space-y-3">
+                                <li class="flex items-center justify-between"><span class="text-red-400">High Risk</span> <span class="font-mono">Score >= 7</span></li>
+                                <li class="flex items-center justify-between"><span class="text-orange-400">Medium Risk</span> <span class="font-mono">Score 4 - 6</span></li>
+                                <li class="flex items-center justify-between"><span class="text-green-400">Low Risk</span> <span class="font-mono">Score < 4</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="mt-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm text-center">
+                        <strong>LEGAL NOTICE:</strong> Human review required before any enforcement action. All data must be handled according to the DPDP Act.
+                    </div>
+                </div> <!-- End of Settings Page -->
             </main>
         </div>
     </div>
