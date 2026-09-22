@@ -1,0 +1,84 @@
+{
+  "/api/stats": {
+    "totalAlerts": 142,
+    "evidencePackages": 38,
+    "highRiskEntities": 12,
+    "detections30d": 890,
+    "highRisk": 45,
+    "byType": [
+      {"_id": "text", "n": 400},
+      {"_id": "photo", "n": 350},
+      {"_id": "comment", "n": 140}
+    ],
+    "recent": [
+      {
+        "_id": "abc1",
+        "platform": "telegram",
+        "chatTitle": "Dark Alley",
+        "username": "seller_99",
+        "text": "h e r o i n available now",
+        "risk": 9,
+        "level": "high",
+        "ts": "2026-09-22T08:00:00.000Z"
+      }
+    ]
+  },
+  "/api/alerts": [
+    {
+      "_id": "abc1",
+      "platform": "telegram",
+      "chatTitle": "Dark Alley",
+      "username": "seller_99",
+      "text": "h e r o i n available now",
+      "risk": 9,
+      "level": "high",
+      "ts": "2026-09-22T08:00:00.000Z"
+    },
+    {
+      "_id": "abc2",
+      "platform": "instagram",
+      "chatTitle": "IG DM",
+      "username": "pharma_bro",
+      "text": "❄️ available dm me",
+      "risk": 8,
+      "level": "high",
+      "ts": "2026-09-22T08:15:00.000Z"
+    }
+  ],
+  "/api/telegram/status": {
+    "connected": true,
+    "webhook": "https://narcox.vercel.app/api/telegram/webhook",
+    "pending": 0
+  },
+  "/api/detections?platform=telegram&minRisk=4&days=30": [
+    {
+      "_id": "tg_001",
+      "platform": "telegram",
+      "chatTitle": "Miami Sellers",
+      "username": "escobar_99",
+      "text": "fresh supply arrived. dm me.",
+      "risk": 7,
+      "level": "high",
+      "ts": "2026-09-22T09:00:00.000Z",
+      "reasons": ["Matched intent word 'supply'", "Phone number detected"],
+      "identifiers": {"phones": ["+91 9876543210"], "emails": [], "upi": [], "wallets": [], "urls": []},
+      "imageLabels": []
+    }
+  ],
+  "/api/detections?platform=instagram&minRisk=4&days=30": [
+    {
+      "_id": "ig_001",
+      "platform": "instagram",
+      "chatTitle": "IG DM",
+      "username": "pharma_bro",
+      "text": "❄️ available dm me",
+      "risk": 8,
+      "level": "high",
+      "ts": "2026-09-22T08:15:00.000Z",
+      "reasons": ["Matched emoji ❄️ (cocaine)"],
+      "identifiers": {},
+      "imageLabels": [],
+      "simulated": true
+    }
+  ]
+}
