@@ -96,6 +96,12 @@
                     </svg>
                     <span>Alerts</span>
                 </a>
+                <a href="#telegram" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                    </svg>
+                    <span>Telegram</span>
+                </a>
                 <a href="#reports" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
@@ -291,6 +297,47 @@
                         </div>
                     </div>
                 </div> <!-- End of Alerts Page -->
+
+                <!-- TELEGRAM PAGE -->
+                <div id="page-telegram" class="page-section hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-blue-400">Telegram Operations</h2>
+                            <p class="text-muted-foreground">Monitor webhook ingested Telegram data.</p>
+                        </div>
+                        <div class="stat-card p-4 rounded-lg flex items-center space-x-4">
+                            <div>
+                                <p class="text-sm text-muted-foreground">Webhook Status</p>
+                                <p id="telegram-webhook-status" class="text-lg font-bold text-green-400">Loading...</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center space-x-4 mb-4">
+                        <input type="number" id="tg-min-risk" value="4" class="bg-input text-foreground border border-border rounded px-3 py-1 w-24" placeholder="Min Risk">
+                        <input type="number" id="tg-days" value="30" class="bg-input text-foreground border border-border rounded px-3 py-1 w-24" placeholder="Days">
+                        <button onclick="updateTelegram()" class="px-4 py-1 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded transition-colors">Refresh</button>
+                    </div>
+
+                    <div class="chart-container p-6 rounded-lg">
+                        <div class="overflow-x-auto">
+                            <table class="w-full">
+                                <thead>
+                                    <tr class="border-b border-border">
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Time</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Chat</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">User</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Risk</th>
+                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Message</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="telegram-page-tbody">
+                                    <!-- Telegram data will appear here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div> <!-- End of Telegram Page -->
             </main>
         </div>
     </div>

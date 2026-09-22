@@ -49,5 +49,20 @@
     "connected": true,
     "webhook": "https://narcox.vercel.app/api/telegram/webhook",
     "pending": 0
-  }
+  },
+  "/api/detections?platform=telegram&minRisk=4&days=30": [
+    {
+      "_id": "tg_001",
+      "platform": "telegram",
+      "chatTitle": "Miami Sellers",
+      "username": "escobar_99",
+      "text": "fresh supply arrived. dm me.",
+      "risk": 7,
+      "level": "high",
+      "ts": "2026-09-22T09:00:00.000Z",
+      "reasons": ["Matched intent word 'supply'", "Phone number detected"],
+      "identifiers": {"phones": ["+91 9876543210"], "emails": [], "upi": [], "wallets": [], "urls": []},
+      "imageLabels": []
+    }
+  ]
 }

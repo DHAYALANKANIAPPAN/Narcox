@@ -79,9 +79,58 @@ window.createEvidence = async (id) => {
     alert("Evidence securely packaged and cryptographically signed!");
 };
 
+async function updateTelegram() {
+    // 1. Update webhook status
+    const status = await API.get('/api/telegram/status');
+    if (status) {
+        document.getElementById('telegram-webhook-status').innerText = status.connected ? 'Active: ' + status.webhook : 'Disconnected';
+    }
+
+    // 2. Fetch detections table
+    const minRisk = document.getElementById('tg-min-risk').value;
+    const days = document.getElementById('tg-days').value;
+    const detections = await API.get(`/api/detections?platform=telegram&minRisk=${minRisk}&days=${days}`);
+    
+    if (detections) {
+        const tbody = document.getElementById('telegram-page-tbody');
+        if(!tbody) return;
+        tbody.innerHTML = '';
+        
+        detections.forEach(det => {
+            const tr = document.createElement('tr');
+            tr.className = 'border-b border-border hover:bg-muted/50';
+            const timeStr = new Date(det.ts).toLocaleTimeString();
+            
+            // Format explanations nicely
+            const reasonsHtml = (det.reasons || []).map(r => `<li>- ${esc(r)}</li>`).join('');
+            const idents = det.identifiers || {};
+            const phonesHtml = (idents.phones || []).map(p => `<li>📞 ${esc(p)}</li>`).join('');
+            
+            tr.innerHTML = `
+                <td class="py-3 px-4 text-sm text-muted-foreground">${timeStr}</td>
+                <td class="py-3 px-4">${esc(det.chatTitle)}</td>
+                <td class="py-3 px-4">${esc(det.username)}</td>
+                <td class="py-3 px-4">${riskBadge(det.risk)}</td>
+                <td class="py-3 px-4">
+                    <div>${esc(det.text)}</div>
+                    <details class="mt-2 text-xs text-muted-foreground bg-muted/20 p-2 rounded">
+                        <summary class="cursor-pointer text-blue-400 font-medium">Why flagged?</summary>
+                        <ul class="mt-1 space-y-1">
+                            ${reasonsHtml}
+                            ${phonesHtml}
+                        </ul>
+                    </details>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+}
+
 function runAllUpdates() {
     updateDashboard();
     updateAlerts();
+    updateTelegram();
 }
 
 // Tell our poll() tool to run everything every 5 seconds!
