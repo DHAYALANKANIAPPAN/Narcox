@@ -23,26 +23,34 @@ module.exports = async (req, res) => {
     let imageLabels = [];
     let imageRisk = 0;
 
+    let fileId = null;
+    let fileUrl = null;
+
     if (isPhoto) {
       try {
         const vision = require('../../lib/vision');
         const largestPhoto = m.photo[m.photo.length - 1];
         const token = process.env.TELEGRAM_BOT_TOKEN;
+        fileId = largestPhoto.file_id;
 
-        const fileResp = await fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${largestPhoto.file_id}`);
+        const fileResp = await fetch(`https://api.telegram.org/bot${token}/getFile?file_id=${fileId}`);
         const fileData = await fileResp.json();
         const filePath = fileData.result.file_path;
-        const fileUrl = `https://api.telegram.org/file/bot${token}/${filePath}`;
+        fileUrl = `https://api.telegram.org/file/bot${token}/${filePath}`;
 
         const visionResult = await vision.analyzeImage(fileUrl);
         imageLabels = visionResult.labels || [];
         imageRisk = visionResult.risk || 0;
       } catch (e) {
         // vision not available or failed, continue without it
+        // If vision fails, at least we saved the fileId!
+        if (m.photo) {
+           fileId = m.photo[m.photo.length - 1].file_id;
+        }
       }
     }
 
-    const risk = Math.max(a.risk, imageRisk, isPhoto ? 2 : 0);
+    const risk = Math.max(a.risk, imageRisk, isPhoto ? 5 : 0);
     if (risk === 0) return res.json({ ok: true });
 
     let level = 'low';
@@ -57,6 +65,8 @@ module.exports = async (req, res) => {
       username: m.from?.username || m.from?.first_name || 'unknown',
       text: text || '[photo]',
       mediaType: isPhoto ? 'photo' : 'text',
+      fileId,
+      fileUrl,
       ts: new Date(m.date * 1000),
       risk,
       level,
