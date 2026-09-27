@@ -332,3 +332,48 @@ if (typeof updateDashboard === 'function') {
     setInterval(updateCharts, 5000);
     updateCharts();
 }
+
+function reportQueryString(extra = {}) {
+    const params = new URLSearchParams({ report: 1, ...extra });
+    const from = document.getElementById('report-from')?.value;
+    const to = document.getElementById('report-to')?.value;
+    const platform = document.getElementById('report-platform')?.value;
+    const minRisk = document.getElementById('report-minrisk')?.value;
+    if (from) params.set('from', from);
+    if (to) params.set('to', to);
+    if (platform) params.set('platform', platform);
+    if (minRisk) params.set('minRisk', minRisk);
+    return params.toString();
+}
+
+async function updateReports() {
+    const data = await API.get(`/api/stats?${reportQueryString()}`);
+    if (!data) return;
+
+    document.getElementById('report-total').innerText = data.summary.totalDetections;
+    document.getElementById('report-high').innerText = data.summary.highRisk;
+    document.getElementById('report-medium').innerText = data.summary.mediumRisk;
+    document.getElementById('report-low').innerText = data.summary.lowRisk;
+
+    const kwBody = document.getElementById('report-keywords-tbody');
+    kwBody.innerHTML = data.topKeywords.length
+        ? data.topKeywords.map(k => `
+            <tr class="border-b border-border">
+                <td class="py-2">${esc(k.term)}</td>
+                <td class="py-2 text-right text-muted-foreground">${k.count}</td>
+            </tr>`).join('')
+        : `<tr><td class="py-2 text-muted-foreground">No data</td></tr>`;
+
+    const acctBody = document.getElementById('report-accounts-tbody');
+    acctBody.innerHTML = data.topAccounts.length
+        ? data.topAccounts.map(a => `
+            <tr class="border-b border-border">
+                <td class="py-2">${esc(a.account)}</td>
+                <td class="py-2 text-right text-muted-foreground">${a.count}</td>
+            </tr>`).join('')
+        : `<tr><td class="py-2 text-muted-foreground">No data</td></tr>`;
+}
+
+function downloadReportCsv() {
+    window.open(`/api/stats?${reportQueryString({ format: 'csv' })}`, '_blank');
+}
