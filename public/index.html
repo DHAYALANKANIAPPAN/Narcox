@@ -320,6 +320,78 @@
                     </div>
                 </div>
 
+                <!-- REPORTS PAGE -->
+                <div id="page-reports" class="page-section hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-primary">Reports</h2>
+                            <p class="text-muted-foreground">Filtered detection summaries with export.</p>
+                        </div>
+                    </div>
+
+                    <div class="chart-container p-6 rounded-lg mb-6">
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 items-end">
+                            <div>
+                                <label class="text-xs text-muted-foreground">From</label>
+                                <input type="date" id="report-from" class="w-full bg-transparent border border-border rounded px-2 py-1 text-sm">
+                            </div>
+                            <div>
+                                <label class="text-xs text-muted-foreground">To</label>
+                                <input type="date" id="report-to" class="w-full bg-transparent border border-border rounded px-2 py-1 text-sm">
+                            </div>
+                            <div>
+                                <label class="text-xs text-muted-foreground">Platform</label>
+                                <select id="report-platform" class="w-full bg-transparent border border-border rounded px-2 py-1 text-sm">
+                                    <option value="">All</option>
+                                    <option value="telegram">Telegram</option>
+                                    <option value="instagram">Instagram</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-muted-foreground">Min Risk</label>
+                                <input type="number" id="report-minrisk" min="0" max="10" value="0" class="w-full bg-transparent border border-border rounded px-2 py-1 text-sm">
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="updateReports()" class="px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-sm font-medium w-full">Run</button>
+                                <button onclick="downloadReportCsv()" class="px-3 py-2 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 rounded text-sm font-medium w-full">CSV</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="chart-container p-4 rounded-lg">
+                            <p class="text-xs text-muted-foreground">Total</p>
+                            <p id="report-total" class="text-2xl font-bold">-</p>
+                        </div>
+                        <div class="chart-container p-4 rounded-lg">
+                            <p class="text-xs text-muted-foreground">High Risk</p>
+                            <p id="report-high" class="text-2xl font-bold text-red-400">-</p>
+                        </div>
+                        <div class="chart-container p-4 rounded-lg">
+                            <p class="text-xs text-muted-foreground">Medium Risk</p>
+                            <p id="report-medium" class="text-2xl font-bold text-orange-400">-</p>
+                        </div>
+                        <div class="chart-container p-4 rounded-lg">
+                            <p class="text-xs text-muted-foreground">Low Risk</p>
+                            <p id="report-low" class="text-2xl font-bold text-green-400">-</p>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="chart-container p-6 rounded-lg">
+                            <h3 class="font-bold mb-3">Top Keywords</h3>
+                            <table class="w-full text-sm">
+                                <tbody id="report-keywords-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div class="chart-container p-6 rounded-lg">
+                            <h3 class="font-bold mb-3">Top Accounts</h3>
+                            <table class="w-full text-sm">
+                                <tbody id="report-accounts-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
                 <!-- NETWORK MAP PAGE -->
                 <div id="page-network" class="page-section hidden">
                     <div class="flex items-center justify-between mb-6">
@@ -498,5 +570,14 @@
             });
         });
     </script>
+
+    <script>
+        document.querySelector('a[href="#reports"]').addEventListener('click', function() {
+            updateReports();
+        });
+    </script>
 </body>
 </html>
+
+
+
