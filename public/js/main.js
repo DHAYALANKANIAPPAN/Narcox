@@ -108,6 +108,7 @@ async function updateTelegram() {
             
             // Format explanations nicely
             const reasonsHtml = (det.reasons || []).map(r => `<li>- ${esc(r)}</li>`).join('');
+            const imageHtml = (det.imageLabels && det.imageLabels.length > 0) ? `<li>📸 AI found: ${esc(det.imageLabels.join(', '))}</li>` : '';
             const idents = det.identifiers || {};
             const phonesHtml = (idents.phones || []).map(p => `<li>📞 ${esc(p)}</li>`).join('');
             
@@ -122,6 +123,7 @@ async function updateTelegram() {
                         <summary class="cursor-pointer text-blue-400 font-medium">Why flagged?</summary>
                         <ul class="mt-1 space-y-1">
                             ${reasonsHtml}
+                            ${imageHtml}
                             ${phonesHtml}
                         </ul>
                     </details>
