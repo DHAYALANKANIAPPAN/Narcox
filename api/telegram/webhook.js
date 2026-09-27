@@ -50,7 +50,7 @@ module.exports = async (req, res) => {
       }
     }
 
-    const risk = Math.max(a.risk, imageRisk, isPhoto ? 5 : 0);
+    const risk = Math.max(a.risk, imageRisk, 0);
     if (risk === 0) return res.json({ ok: true });
 
     let level = 'low';

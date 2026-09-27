@@ -87,7 +87,7 @@ module.exports = async function handler(req, res) {
           }
       }
 
-      const risk = Math.max(a.risk, imageRisk, item.isPhoto ? 5 : 0);
+      const risk = Math.max(a.risk, imageRisk, 0);
       if (risk === 0) continue;
 
       let level = 'low';
