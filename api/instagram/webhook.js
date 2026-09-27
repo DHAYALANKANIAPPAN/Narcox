@@ -1,5 +1,6 @@
 const { getDb } = require('../../lib/db');
 const { analyze } = require('../../lib/detector');
+const vision = require('../../lib/vision');
 
 module.exports = async function handler(req, res) {
   if (req.method === 'GET') {
@@ -20,15 +21,34 @@ module.exports = async function handler(req, res) {
     for (const e of entries) {
       if (e.messaging) {
         for (const m of e.messaging) {
-          if (m.message && m.message.text) {
-            items.push({
-              userId: String(m.sender.id),
-              username: String(m.sender.id),
-              text: m.message.text,
-              ts: new Date(m.timestamp),
-              mediaType: 'text',
-              chat: 'IG DM'
-            });
+          if (m.message) {
+            let text = m.message.text || '';
+            let mediaType = 'text';
+            let fileUrl = null;
+            let isPhoto = false;
+
+            if (m.message.attachments && m.message.attachments.length > 0) {
+                const att = m.message.attachments[0];
+                if (att.type === 'image') {
+                    isPhoto = true;
+                    mediaType = 'photo';
+                    fileUrl = att.payload.url;
+                    text = text || '[photo]';
+                }
+            }
+            
+            if (text || isPhoto) {
+                items.push({
+                  userId: String(m.sender.id),
+                  username: String(m.sender.id),
+                  text: text,
+                  ts: new Date(m.timestamp),
+                  mediaType: mediaType,
+                  fileUrl: fileUrl,
+                  isPhoto: isPhoto,
+                  chat: 'IG DM'
+                });
+            }
           }
         }
       }
@@ -42,6 +62,7 @@ module.exports = async function handler(req, res) {
               text: c.value.text,
               ts: new Date(),
               mediaType: 'comment',
+              isPhoto: false,
               chat: 'IG post ' + c.value.media.id
             });
           }
@@ -53,7 +74,25 @@ module.exports = async function handler(req, res) {
 
     for (const item of items) {
       const a = analyze(item.text);
-      if (a.risk === 0) continue;
+      let imageLabels = [];
+      let imageRisk = 0;
+
+      if (item.isPhoto && item.fileUrl) {
+          try {
+             const visionResult = await vision.analyzeImage(item.fileUrl);
+             imageLabels = visionResult.labels || [];
+             imageRisk = visionResult.risk || 0;
+          } catch (e) {
+             console.error('IG Vision failed', e);
+          }
+      }
+
+      const risk = Math.max(a.risk, imageRisk, item.isPhoto ? 5 : 0);
+      if (risk === 0) continue;
+
+      let level = 'low';
+      if (risk >= 7) level = 'high';
+      else if (risk >= 4) level = 'medium';
 
       await db.collection('detections').insertOne({
         platform: 'instagram',
@@ -63,14 +102,15 @@ module.exports = async function handler(req, res) {
         username: item.username,
         text: item.text,
         mediaType: item.mediaType,
+        fileUrl: item.fileUrl || null,
         ts: item.ts,
-        risk: a.risk,
-        level: a.level,
-        categories: a.categories,
-        matches: a.matches,
-        identifiers: a.identifiers,
-        reasons: a.reasons,
-        imageLabels: []
+        risk: risk,
+        level: level,
+        categories: a.categories || [],
+        matches: a.matches || [],
+        identifiers: a.identifiers || {},
+        reasons: a.reasons || [],
+        imageLabels: imageLabels
       });
     }
 
