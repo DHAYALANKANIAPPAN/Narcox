@@ -84,6 +84,8 @@ module.exports = async function handler(req, res) {
              imageRisk = visionResult.risk || 0;
           } catch (e) {
              console.error('IG Vision failed', e);
+             imageLabels = [`System Error: ${e.message}`];
+             imageRisk = 5;
           }
       }
 

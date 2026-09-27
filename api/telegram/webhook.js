@@ -42,7 +42,8 @@ module.exports = async (req, res) => {
         imageLabels = visionResult.labels || [];
         imageRisk = visionResult.risk || 0;
       } catch (e) {
-        // vision not available or failed, continue without it
+        imageLabels = [`System Error: ${e.message}`];
+        imageRisk = 5;
         // If vision fails, at least we saved the fileId!
         if (m.photo) {
            fileId = m.photo[m.photo.length - 1].file_id;
