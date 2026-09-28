@@ -66,61 +66,6 @@
     <div style="width: 50px; height: 2px; background: #f97316; margin-top: 15px;"></div>
   </div>
 
-  <!-- STEP 2: LANGUAGE SELECTOR -->
-  <div id="screen-lang" class="screen ncb-blue-bg flex-col" style="z-index: 40; opacity: 0; pointer-events: none;">
-    
-    <!-- Modal Container -->
-    <div style="background: #112240; border: 1px solid #2a4365; border-radius: 12px; width: 90%; max-width: 800px; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-      
-      <div style="padding: 20px; border-bottom: 1px solid #2a4365; display: flex; align-items: center; justify-content: space-between;">
-         <div style="display: flex; align-items: center; gap: 15px;">
-             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" style="height: 30px; width: 30px;"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
-             <div>
-                <div style="font-size: 1.1rem; font-weight: bold; color: #fbd38d;">NARCOTICS CONTROL BUREAU</div>
-                <div style="font-size: 0.65rem; letter-spacing: 0.5px; color: #a0aec0;">MINISTRY OF HOME AFFAIRS, GOVERNMENT OF INDIA</div>
-             </div>
-         </div>
-      </div>
-
-      <div style="padding: 30px; text-align: center;">
-        <h2 style="font-size: 2rem; color: #fbd38d; font-weight: bold; margin-bottom: 5px;">English</h2>
-        <p style="color: #a0aec0; margin-bottom: 30px;">Select your preferred language &middot; अपनी भाषा चुनें</p>
-        
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 15px;">
-          <!-- Grid of Languages -->
-          <div class="lang-btn" onclick="selectLang()">
-            <div style="font-weight: bold; font-size: 1.1rem;">हिंदी</div><div style="font-size: 0.75rem; color: #a0aec0;">Hindi</div>
-          </div>
-          <div class="lang-btn" onclick="selectLang()">
-            <div style="font-weight: bold; font-size: 1.1rem;">English</div><div style="font-size: 0.75rem; color: #a0aec0;">English</div>
-          </div>
-          <div class="lang-btn" onclick="selectLang()">
-            <div style="font-weight: bold; font-size: 1.1rem;">বাংলা</div><div style="font-size: 0.75rem; color: #a0aec0;">Bengali</div>
-          </div>
-          <div class="lang-btn" onclick="selectLang()">
-            <div style="font-weight: bold; font-size: 1.1rem;">తెలుగు</div><div style="font-size: 0.75rem; color: #a0aec0;">Telugu</div>
-          </div>
-          <div class="lang-btn" onclick="selectLang()">
-            <div style="font-weight: bold; font-size: 1.1rem;">मराठी</div><div style="font-size: 0.75rem; color: #a0aec0;">Marathi</div>
-          </div>
-          <div class="lang-btn" onclick="selectLang()">
-            <div style="font-weight: bold; font-size: 1.1rem;">தமிழ்</div><div style="font-size: 0.75rem; color: #a0aec0;">Tamil</div>
-          </div>
-          <div class="lang-btn" onclick="selectLang()">
-            <div style="font-weight: bold; font-size: 1.1rem;">ગુજરાતી</div><div style="font-size: 0.75rem; color: #a0aec0;">Gujarati</div>
-          </div>
-          <div class="lang-btn" onclick="selectLang()">
-            <div style="font-weight: bold; font-size: 1.1rem;">ಕನ್ನಡ</div><div style="font-size: 0.75rem; color: #a0aec0;">Kannada</div>
-          </div>
-          <div class="lang-btn" onclick="selectLang()">
-            <div style="font-weight: bold; font-size: 1.1rem;">മലയാളം</div><div style="font-size: 0.75rem; color: #a0aec0;">Malayalam</div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
   <!-- STEP 3: LOGIN SCREEN -->
   <div id="screen-login" class="screen" style="z-index: 30; opacity: 0; pointer-events: none;">
     <div class="w-full max-w-md bg-white border border-gray-300 rounded-xl p-8 shadow-xl">
@@ -156,20 +101,12 @@
     const lang = document.getElementById('screen-lang');
     const login = document.getElementById('screen-login');
 
-    // Step 1: Hide splash and show language selector after 2.5 seconds
+    // Step 1: Hide splash and show LOGIN directly after 2.5 seconds
     setTimeout(() => {
         splash.classList.add('fade-out');
-        lang.classList.add('fade-in');
-    }, 2500);
-
-    // Step 2: Language selected -> Hide language, show login
-    function selectLang() {
-        lang.classList.remove('fade-in');
-        lang.classList.add('fade-out');
-        
         login.classList.add('fade-in');
-        document.body.style.overflow = 'auto'; // restore scrolling if needed
-    }
+        document.body.style.overflow = 'auto'; // restore scrolling
+    }, 2500);
 
     // Step 3: Login Logic (Original backend logic preserved)
     const btn = document.getElementById('loginBtn');
