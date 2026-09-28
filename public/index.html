@@ -19,7 +19,7 @@
                         secondary: '#f8fafc',
                         'secondary-foreground': '#1e293b',
                         muted: '#f1f5f9',
-                        'muted-foreground': '#64748b',
+                        'muted-foreground': '#475569',
                         accent: '#e2e8f0',
                         'accent-foreground': '#1e293b',
                         destructive: '#dc2626',
@@ -41,8 +41,8 @@
         .page-section { display: none; }
         .page-section:not(.hidden) { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        .stat-card { background: #f1f5f9; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-radius: 8px; }
-        .chart-container { background: #f1f5f9; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-radius: 8px; }
+        .stat-card { background: #e2e8f0; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-radius: 8px; }
+        .chart-container { background: #e2e8f0; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-radius: 8px; }
         .sidebar-item.active { background: #dc2626; color: #fff; }
         
         /* Hackathon Wow Factor: Evidence Hash Scanning Animation */
@@ -88,7 +88,7 @@
 })();
 </script>
 </head>
-<body class="bg-background text-foreground font-sans">
+<body class="bg-background text-foreground font-sans flex flex-col h-screen overflow-hidden">
 
     
     <!-- Top thin bar -->
@@ -127,9 +127,9 @@
     </div>
         </div>
 
-    <div class="flex h-screen">
+    <div class="flex flex-1 overflow-hidden">
         <!-- Sidebar -->
-        <div class="w-64 bg-[#e2e8f0] border-r border-border flex flex-col">
+        <div class="w-64 bg-[#cbd5e1] border-r border-border flex flex-col overflow-y-auto">
             <!-- Navigation -->
             <nav class="flex-1 p-4 space-y-2">
                 <a href="#dashboard" class="sidebar-item active flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
@@ -200,7 +200,7 @@
         <!-- Main Content -->
         <div class="flex-1 min-w-0 flex flex-col overflow-hidden">
             <!-- Header -->
-            <header class="bg-[#e2e8f0] border-b border-border px-6 py-4">
+            <header class="bg-[#cbd5e1] border-b border-border px-6 py-4">
                 <div class="flex items-center justify-between">
                     <div>
                         <h1 class="text-2xl font-bold text-foreground">Intelligence Dashboard</h1>
