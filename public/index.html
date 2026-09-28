@@ -68,6 +68,17 @@
             border: 1px solid #333;
             border-radius: 0.5rem;
         }
+        #page-network.hidden { display: none !important; }
+        #network-map-container {
+            position: relative;
+            overflow: hidden;
+            max-width: 100%;
+        }
+        #network-map-container .vis-network,
+        #network-map-container canvas {
+            max-width: 100% !important;
+        }
+        main#main-content { min-width: 0; }
     </style>
 <script>
 (async function(){
@@ -163,7 +174,7 @@
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 min-w-0 flex flex-col overflow-hidden"></div>
             <!-- Header -->
             <header class="bg-card border-b border-border px-6 py-4">
                 <div class="flex items-center justify-between">

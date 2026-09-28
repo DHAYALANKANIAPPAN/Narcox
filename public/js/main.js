@@ -243,6 +243,7 @@ let netInstance = null;
 
 async function updateNetwork() {
     if (networkInitialized) return;
+    if (location.hash !== '#network') return;
     const data = await API.get('/api/network');
     const container = document.getElementById('network-map-container');
     if (!data || !container || !window.vis) return;
