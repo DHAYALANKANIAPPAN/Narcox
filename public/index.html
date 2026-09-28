@@ -593,6 +593,17 @@
         updateTime();
         setInterval(updateTime, 1000);
 
+        // URL Hash Routing
+        window.addEventListener('DOMContentLoaded', () => {
+            const hash = window.location.hash || '#dashboard';
+            const link = document.querySelector(`.sidebar-item[href="${hash}"]`);
+            if (link) {
+                link.click();
+            } else {
+                document.querySelector('.sidebar-item[href="#dashboard"]').click();
+            }
+        });
+
         // Sidebar navigation & Page Switching
         document.querySelectorAll('.sidebar-item').forEach(item => {
             item.addEventListener('click', function(e) {
