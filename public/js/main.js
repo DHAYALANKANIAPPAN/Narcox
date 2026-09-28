@@ -286,14 +286,14 @@ async function updateCharts() {
         const maxCount = Math.max(1, ...stats.trend.map(d => d.count));
         trendContainer.innerHTML = stats.trend.length === 0
             ? '<div class="text-center text-muted-foreground text-sm w-full">No data in the last 7 days</div>'
-            : stats.trend.map(d => {
-                const heightPct = Math.round((d.count / maxCount) * 100);
+                        : stats.trend.map(d => {
+                const barPx = Math.max(6, Math.round((d.count / maxCount) * 180));
                 const day = new Date(d._id).toLocaleDateString(undefined, { weekday: 'short' });
                 return `
-                    <div class="flex flex-col items-center flex-1">
-                        <div class="w-full bg-primary rounded-t" style="height:${Math.max(heightPct, 4)}%"></div>
+                    <div class="flex flex-col items-center justify-end flex-1 h-full">
+                        <div class="text-[10px] text-muted-foreground mb-1">${d.count}</div>
+                        <div class="w-full rounded-t" style="height:${barPx}px; background:#dc2626"></div>
                         <div class="text-[10px] text-muted-foreground mt-2">${day}</div>
-                        <div class="text-[10px] text-muted-foreground">${d.count}</div>
                     </div>
                 `;
             }).join('');
