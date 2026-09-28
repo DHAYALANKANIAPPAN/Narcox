@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node test/detector.test.js"
+    "test": "node test/detector.test.js && node test/webhooks.test.js"
   },
   "dependencies": {
     "express": "^5.2.1",

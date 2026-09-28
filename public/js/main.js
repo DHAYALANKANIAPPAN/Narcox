@@ -1,4 +1,4 @@
-// public/js/main.js
+﻿// public/js/main.js
 
 async function updateDashboard() {
     // 1. Fetch our data! (This will read from mock.json for now)
@@ -75,7 +75,7 @@ async function updateAlerts() {
 
 window.createEvidence = async (id) => {
     alert("Packaging evidence for Case #" + id.substring(0,6) + "...");
-    await API.post('/api/evidence', { detectionId: id, officer: 'Det. John Doe' });
+    await API.post('/api/evidence', { detectionId: id, officer: 'Durai Singam' });
     alert("Evidence securely packaged and cryptographically signed!");
 };
 
@@ -110,7 +110,7 @@ async function updateTelegram() {
             const reasonsHtml = (det.reasons || []).map(r => `<li>- ${esc(r)}</li>`).join('');
             const imageHtml = (det.imageLabels && det.imageLabels.length > 0) ? `<li>📸 AI found: ${esc(det.imageLabels.join(', '))}</li>` : '';
             const idents = det.identifiers || {};
-            const phonesHtml = (idents.phones || []).map(p => `<li>📞 ${esc(p)}</li>`).join('');
+            const phonesHtml = (idents.phones || []).map(p => `<li>ðŸ“ž ${esc(p)}</li>`).join('');
             
             tr.innerHTML = `
                 <td class="py-3 px-4 text-sm text-gray-500">${timeStr}</td>
@@ -139,7 +139,7 @@ window.downloadEvidence = (detectionId) => {
 
     const pkg = {
         exportedAt: new Date().toISOString(),
-        exportedBy: 'Det. John Doe',
+        exportedBy: 'Durai Singam',
         note: 'Verify by re-hashing "content" with SHA-256 and comparing to contentHash/packageHash.',
         package: ev
     };
@@ -205,8 +205,8 @@ async function updateEvidence() {
 
     evidence.forEach(ev => {
         const verifiedBadge = ev.verified 
-            ? `<span class="hash-verified text-sm px-3 py-1 bg-green-500/10 border border-green-500/30 rounded">✓ HASH VERIFIED</span>`
-            : `<span class="text-sm px-3 py-1 bg-red-500/10 border border-red-500/30 text-red-500 rounded">✗ TAMPERED</span>`;
+            ? `<span class="hash-verified text-sm px-3 py-1 bg-green-500/10 border border-green-500/30 rounded">âœ“ HASH VERIFIED</span>`
+            : `<span class="text-sm px-3 py-1 bg-red-500/10 border border-red-500/30 text-red-500 rounded">âœ— TAMPERED</span>`;
             
         const custodyHtml = ev.custody.map(c => 
             `<div class="flex justify-between text-xs text-gray-500"><span class="font-mono">${c.action} by ${c.by}</span> <span>${new Date(c.at).toLocaleString()}</span></div>`
@@ -243,6 +243,7 @@ let netInstance = null;
 
 async function updateNetwork() {
     if (networkInitialized) return;
+    if (location.hash !== '#network') return;
     const data = await API.get('/api/network');
     const container = document.getElementById('network-map-container');
     if (!data || !container || !window.vis) return;
@@ -468,3 +469,4 @@ async function updateReports() {
 function downloadReportCsv() {
     window.open(`/api/stats?${reportQueryString({ format: 'csv' })}`, '_blank');
 }
+
