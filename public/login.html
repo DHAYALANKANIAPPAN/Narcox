@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NarcoX - Officer Login</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  body { background: #0a0a0a; color: #e5e5e5; font-family: system-ui, sans-serif; }
+</style>
+</head>
+<body class="min-h-screen flex items-center justify-center">
+  <div class="w-full max-w-sm bg-black/40 border border-neutral-800 rounded-lg p-8">
+    <h1 class="text-xl font-bold text-red-500 mb-1">NarcoX</h1>
+    <p class="text-sm text-neutral-400 mb-6">Authorized personnel only</p>
+
+    <label class="text-xs text-neutral-400 uppercase tracking-wider">Official Email</label>
+    <input id="email" type="email" placeholder="officer@department.gov"
+      class="w-full mt-2 mb-4 px-3 py-2 bg-neutral-900 border border-neutral-700 rounded text-sm outline-none focus:border-red-500" />
+
+    <button id="loginBtn"
+      class="w-full bg-red-600 hover:bg-red-700 text-white text-sm font-medium py-2 rounded transition-colors">
+      Access Dashboard
+    </button>
+
+    <p id="errorMsg" class="text-xs text-red-500 mt-3 hidden"></p>
+  </div>
+
+  <script>
+    const btn = document.getElementById('loginBtn');
+    const emailInput = document.getElementById('email');
+    const errorMsg = document.getElementById('errorMsg');
+
+    async function attemptLogin() {
+      errorMsg.classList.add('hidden');
+      const email = emailInput.value.trim();
+      if (!email) return;
+
+      btn.disabled = true;
+      btn.textContent = 'Verifying...';
+
+      try {
+        const res = await fetch('/api/auth?action=login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+
+        if (res.ok && data.ok) {
+          window.location.href = '/index.html';
+        } else {
+          errorMsg.textContent = data.error || 'Access denied.';
+          errorMsg.classList.remove('hidden');
+        }
+      } catch (err) {
+        errorMsg.textContent = 'Network error. Try again.';
+        errorMsg.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Access Dashboard';
+      }
+    }
+
+    btn.addEventListener('click', attemptLogin);
+    emailInput.addEventListener('keydown', e => { if (e.key === 'Enter') attemptLogin(); });
+  </script>
+</body>
+</html>

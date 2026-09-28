@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
@@ -68,7 +68,26 @@
             border: 1px solid #333;
             border-radius: 0.5rem;
         }
+        #page-network.hidden { display: none !important; }
+        #network-map-container {
+            position: relative;
+            overflow: hidden;
+            max-width: 100%;
+        }
+        #network-map-container .vis-network,
+        #network-map-container canvas {
+            max-width: 100% !important;
+        }
+        main#main-content { min-width: 0; }
     </style>
+<script>
+(async function(){
+  try {
+    const res = await fetch('/api/auth');
+    if (!res.ok) window.location.href = '/login.html';
+  } catch (e) { window.location.href = '/login.html'; }
+})();
+</script>
 </head>
 <body class="bg-background text-foreground font-sans">
     <div class="flex h-screen">
@@ -155,7 +174,7 @@
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
+        <div class="flex-1 min-w-0 flex flex-col overflow-hidden"></div>
             <!-- Header -->
             <header class="bg-card border-b border-border px-6 py-4">
                 <div class="flex items-center justify-between">
@@ -312,6 +331,78 @@
                     </div>
                 </div>
 
+                <!-- REPORTS PAGE -->
+                <div id="page-reports" class="page-section hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <div>
+                            <h2 class="text-2xl font-bold text-primary">Reports</h2>
+                            <p class="text-muted-foreground">Filtered detection summaries with export.</p>
+                        </div>
+                    </div>
+
+                    <div class="chart-container p-6 rounded-lg mb-6">
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 items-end">
+                            <div>
+                                <label class="text-xs text-muted-foreground">From</label>
+                                <input type="date" id="report-from" class="w-full bg-transparent border border-border rounded px-2 py-1 text-sm">
+                            </div>
+                            <div>
+                                <label class="text-xs text-muted-foreground">To</label>
+                                <input type="date" id="report-to" class="w-full bg-transparent border border-border rounded px-2 py-1 text-sm">
+                            </div>
+                            <div>
+                                <label class="text-xs text-muted-foreground">Platform</label>
+                                <select id="report-platform" class="w-full bg-transparent border border-border rounded px-2 py-1 text-sm">
+                                    <option value="">All</option>
+                                    <option value="telegram">Telegram</option>
+                                    <option value="instagram">Instagram</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="text-xs text-muted-foreground">Min Risk</label>
+                                <input type="number" id="report-minrisk" min="0" max="10" value="0" class="w-full bg-transparent border border-border rounded px-2 py-1 text-sm">
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="updateReports()" class="px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-sm font-medium w-full">Run</button>
+                                <button onclick="downloadReportCsv()" class="px-3 py-2 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 rounded text-sm font-medium w-full">CSV</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                        <div class="chart-container p-4 rounded-lg">
+                            <p class="text-xs text-muted-foreground">Total</p>
+                            <p id="report-total" class="text-2xl font-bold">-</p>
+                        </div>
+                        <div class="chart-container p-4 rounded-lg">
+                            <p class="text-xs text-muted-foreground">High Risk</p>
+                            <p id="report-high" class="text-2xl font-bold text-red-400">-</p>
+                        </div>
+                        <div class="chart-container p-4 rounded-lg">
+                            <p class="text-xs text-muted-foreground">Medium Risk</p>
+                            <p id="report-medium" class="text-2xl font-bold text-orange-400">-</p>
+                        </div>
+                        <div class="chart-container p-4 rounded-lg">
+                            <p class="text-xs text-muted-foreground">Low Risk</p>
+                            <p id="report-low" class="text-2xl font-bold text-green-400">-</p>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div class="chart-container p-6 rounded-lg">
+                            <h3 class="font-bold mb-3">Top Keywords</h3>
+                            <table class="w-full text-sm">
+                                <tbody id="report-keywords-tbody"></tbody>
+                            </table>
+                        </div>
+                        <div class="chart-container p-6 rounded-lg">
+                            <h3 class="font-bold mb-3">Top Accounts</h3>
+                            <table class="w-full text-sm">
+                                <tbody id="report-accounts-tbody"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
                 <!-- NETWORK MAP PAGE -->
                 <div id="page-network" class="page-section hidden">
                     <div class="flex items-center justify-between mb-6">
@@ -319,11 +410,16 @@
                             <h2 class="text-2xl font-bold text-primary">Entity Network Map</h2>
                             <p class="text-muted-foreground">AI-driven relationship mapping (Sellers, Buyers, Crypto, Phones)</p>
                         </div>
-                        <div class="flex space-x-2 text-xs">
-                            <span class="px-2 py-1 bg-red-500/20 text-red-400 rounded">● High Risk</span>
-                            <span class="px-2 py-1 bg-blue-500/20 text-blue-400 rounded">● Accounts</span>
-                            <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded">● Phones</span>
+                            <div class="flex space-x-2 text-xs">
+                            <span class="px-2 py-1 bg-red-500/20 text-red-400 rounded">&#9679; High Risk</span>
+                            <span class="px-2 py-1 bg-blue-500/20 text-blue-400 rounded">&#9679; Accounts</span>
+                            <span class="px-2 py-1 bg-purple-500/20 text-purple-400 rounded">&#9670; Groups</span>
+                            <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded">&#9632; Phones</span>
+                            <span class="px-2 py-1 bg-amber-500/20 text-amber-400 rounded">&#9650; UPI</span>
                         </div>
+                    </div>
+                    <div id="network-controls" class="mb-2"></div>
+                    <div id="network-map-container"></div>
                     </div>
                     <div id="network-map-container"></div>
                 </div>
@@ -433,8 +529,8 @@
                         <div class="chart-container p-6 rounded-lg">
                             <h3 class="text-lg font-semibold mb-4 text-primary">Connected Sources</h3>
                             <ul class="space-y-3">
-                                <li class="flex items-center justify-between"><span class="text-muted-foreground">Telegram Bot</span> <span class="text-green-400">Connected ✓</span></li>
-                                <li class="flex items-center justify-between"><span class="text-muted-foreground">Instagram Graph API</span> <span class="text-green-400">Connected ✓</span></li>
+                                <li class="flex items-center justify-between"><span class="text-muted-foreground">Telegram Bot</span> <span class="text-green-400">Connected &#10003</span></li>
+                                <li class="flex items-center justify-between"><span class="text-muted-foreground">Instagram Graph API</span> <span class="text-green-400">Connected &10003</span></li>
                                 <li class="flex items-center justify-between"><span class="text-muted-foreground">WhatsApp</span> <span class="text-red-400">Not Supported (E2E Encrypted)</span></li>
                             </ul>
                         </div>
@@ -490,5 +586,14 @@
             });
         });
     </script>
+
+    <script>
+        document.querySelector('a[href="#reports"]').addEventListener('click', function() {
+            updateReports();
+        });
+    </script>
 </body>
 </html>
+
+
+

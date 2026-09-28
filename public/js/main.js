@@ -108,6 +108,7 @@ async function updateTelegram() {
             
             // Format explanations nicely
             const reasonsHtml = (det.reasons || []).map(r => `<li>- ${esc(r)}</li>`).join('');
+            const imageHtml = (det.imageLabels && det.imageLabels.length > 0) ? `<li>📸 AI found: ${esc(det.imageLabels.join(', '))}</li>` : '';
             const idents = det.identifiers || {};
             const phonesHtml = (idents.phones || []).map(p => `<li>📞 ${esc(p)}</li>`).join('');
             
@@ -122,6 +123,7 @@ async function updateTelegram() {
                         <summary class="cursor-pointer text-blue-400 font-medium">Why flagged?</summary>
                         <ul class="mt-1 space-y-1">
                             ${reasonsHtml}
+                            ${imageHtml}
                             ${phonesHtml}
                         </ul>
                     </details>
@@ -131,6 +133,27 @@ async function updateTelegram() {
         });
     }
 }
+window.downloadEvidence = (detectionId) => {
+    const ev = (window._evidenceCache || []).find(e => e.detectionId === detectionId);
+    if (!ev) { alert('Evidence package not found.'); return; }
+
+    const pkg = {
+        exportedAt: new Date().toISOString(),
+        exportedBy: 'Det. John Doe',
+        note: 'Verify by re-hashing "content" with SHA-256 and comparing to contentHash/packageHash.',
+        package: ev
+    };
+
+    const blob = new Blob([JSON.stringify(pkg, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `narcox-evidence-${detectionId}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+};
 
 async function updateInstagram() {
     // We can hardcode the query params for now like we did for Telegram
@@ -171,6 +194,7 @@ async function updateEvidence() {
     const evidence = await API.get('/api/evidence');
     const container = document.getElementById('evidence-container');
     if (!evidence || !container) return;
+    window._evidenceCache = evidence;
     
     container.innerHTML = '';
     
@@ -205,7 +229,7 @@ async function updateEvidence() {
                     <div class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Custody Chain</div>
                     ${custodyHtml}
                 </div>
-                <button onclick="alert('Downloading forensic package for ${ev.detectionId}')" class="text-xs bg-primary hover:bg-red-700 text-white px-4 py-2 rounded transition-colors flex items-center gap-2">
+                <button onclick="downloadEvidence('${ev.detectionId}')" class="text-xs bg-primary hover:bg-red-700 text-white px-4 py-2 rounded transition-colors flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     Download Forensic JSON
                 </button>
@@ -215,53 +239,121 @@ async function updateEvidence() {
 }
 
 let networkInitialized = false;
+let netInstance = null;
+
 async function updateNetwork() {
-    // Only init the physics network once so it doesn't reset every 5 seconds
     if (networkInitialized) return;
-    
+    if (location.hash !== '#network') return;
     const data = await API.get('/api/network');
     const container = document.getElementById('network-map-container');
     if (!data || !container || !window.vis) return;
-    
     networkInitialized = true;
-    
-    // Map data for vis-network
+
+    // 1. Merge duplicate edges into one weighted edge
+    const merged = {};
+    data.edges.forEach(e => {
+        const k = e.from + '|' + e.to + '|' + e.kind;
+        merged[k] = merged[k] || { ...e, weight: 0 };
+        merged[k].weight++;
+    });
+    const edgeList = Object.values(merged);
+
+    // 2. Node styling by type/risk
+    const palette = { account: '#3b82f6', group: '#a855f7', phones: '#22c55e',
+                      upi: '#f59e0b', wallets: '#eab308', emails: '#06b6d4' };
+    const shapes = { account: 'dot', group: 'diamond', phones: 'square',
+                     upi: 'triangle', wallets: 'star', emails: 'hexagon' };
+    const info = {};
     const nodes = new vis.DataSet(data.nodes.map(n => {
-        let color = '#3b82f6'; // account blue
-        if (n.type === 'group') color = '#a855f7'; // group purple
-        if (n.type === 'phones') color = '#22c55e'; // phone green
-        if (n.risk >= 8) color = '#ef4444'; // high risk red
-        
+        info[n.id] = n;
+        const base = palette[n.type] || '#64748b';
+        const hot = n.risk >= 8;
         return {
             id: n.id,
-            label: n.label + (n.role ? `\n(${n.role})` : ''),
-            value: n.risk * n.degree, // Size based on risk and connections
-            color: { background: color, border: '#111' },
-            font: { color: '#fff', face: 'monospace', size: 12 }
+            label: n.label,
+            shape: shapes[n.type] || 'dot',
+            value: Math.max(4, n.risk * 2 + (n.degree || 0) * 3),
+            color: {
+                background: hot ? '#ef4444' : base,
+                border: hot ? '#fecaca' : '#111',
+                highlight: { background: '#fff', border: '#ef4444' }
+            },
+            borderWidth: hot ? 3 : 1,
+            shadow: hot ? { enabled: true, color: 'rgba(239,68,68,0.7)', size: 25, x: 0, y: 0 } : false,
+            font: { color: '#e5e7eb', size: 13, face: 'monospace', strokeWidth: 3, strokeColor: '#000' },
+            title: `${n.label}\nType: ${n.type}\nRisk: ${n.risk}/10\nConnections: ${n.degree || 0}` +
+                   (n.role ? `\nRole: ${n.role}` : '')
         };
     }));
-    
-    const edges = new vis.DataSet(data.edges.map(e => ({
-        from: e.from,
-        to: e.to,
-        label: e.kind,
-        color: { color: '#404040' },
-        font: { color: '#a3a3a3', size: 10, align: 'middle' },
-        arrows: 'to'
+
+    const edges = new vis.DataSet(edgeList.map((e, i) => ({
+        id: i, from: e.from, to: e.to,
+        width: Math.min(1 + Math.log2(e.weight + 1) * 1.5, 8),
+        title: `${e.kind} x${e.weight}`,
+        color: { color: '#525252', highlight: '#ef4444', opacity: 0.7 },
+        smooth: { type: 'continuous' },
+        arrows: { to: { enabled: true, scaleFactor: 0.5 } }
     })));
 
-    const options = {
-        nodes: { shape: 'dot', scaling: { min: 10, max: 30 } },
+    netInstance = new vis.Network(container, { nodes, edges }, {
+        nodes: { scaling: { min: 14, max: 45 } },
+        interaction: { hover: true, tooltipDelay: 100, navigationButtons: true, keyboard: true },
         physics: {
-            forceAtlas2Based: { gravitationalConstant: -50, centralGravity: 0.01, springLength: 100, springConstant: 0.08 },
-            maxVelocity: 50,
             solver: 'forceAtlas2Based',
-            timestep: 0.35,
-            stabilization: { iterations: 150 }
+            forceAtlas2Based: { gravitationalConstant: -80, centralGravity: 0.02, springLength: 140, avoidOverlap: 0.6 },
+            stabilization: { iterations: 200 }
         }
-    };
-    
-    new vis.Network(container, { nodes, edges }, options);
+    });
+
+    // 3. Details panel
+    let panel = document.getElementById('network-panel');
+    if (!panel) {
+        panel = document.createElement('div');
+        panel.id = 'network-panel';
+        panel.style.cssText = 'position:absolute;top:12px;right:12px;width:230px;background:rgba(10,10,10,.92);' +
+            'border:1px solid #333;border-radius:8px;padding:12px;font-size:12px;color:#e5e7eb;display:none;z-index:5';
+        container.style.position = 'relative';
+        container.appendChild(panel);
+    }
+
+    // 4. Click a node to spotlight its neighbors and dim the rest
+    netInstance.on('click', p => {
+        const all = nodes.getIds();
+        if (!p.nodes.length) {
+            nodes.update(all.map(id => ({ id, opacity: 1 })));
+            panel.style.display = 'none';
+            return;
+        }
+        const id = p.nodes[0];
+        const near = new Set([id, ...netInstance.getConnectedNodes(id)]);
+        nodes.update(all.map(x => ({ id: x, opacity: near.has(x) ? 1 : 0.12 })));
+        const n = info[id];
+        panel.innerHTML = `<div style="font-weight:700;color:#ef4444;margin-bottom:6px">${esc(n.label)}</div>` +
+            `<div>Type: ${esc(n.type)}</div><div>Risk: ${n.risk}/10</div>` +
+            `<div>Connections: ${n.degree || 0}</div><div>Messages: ${n.count}</div>` +
+            (n.role ? `<div>Role: ${esc(n.role)}</div>` : '');
+        panel.style.display = 'block';
+    });
+
+    // 5. Search and fit controls
+    const bar = document.getElementById('network-controls');
+    if (bar && !bar.dataset.ready) {
+        bar.dataset.ready = '1';
+        bar.innerHTML = `<input id="net-search" placeholder="Search account..." style="background:#111;border:1px solid #333;color:#fff;padding:4px 8px;border-radius:6px;font-size:12px"> ` +
+            `<button id="net-fit" style="background:#dc2626;color:#fff;padding:4px 10px;border-radius:6px;font-size:12px">Fit</button>`;
+        document.getElementById('net-fit').onclick = () => netInstance.fit({ animation: true });
+        document.getElementById('net-search').oninput = ev => {
+            const q = ev.target.value.toLowerCase();
+            const hit = nodes.get().find(n => q && n.label.toLowerCase().includes(q));
+            if (hit) { netInstance.selectNodes([hit.id]); netInstance.focus(hit.id, { scale: 1.3, animation: true }); }
+        };
+    }
+    netInstance.once('stabilizationIterationsDone', () => netInstance.fit({ animation: true }));
+    window.addEventListener('hashchange', () => {
+        if (location.hash === '#network' && netInstance) {
+            setTimeout(() => { netInstance.redraw(); netInstance.fit({ animation: true }); }, 100);
+        }
+    });
 }
 
 function runAllUpdates() {
@@ -275,3 +367,105 @@ function runAllUpdates() {
 
 // Tell our poll() tool to run everything every 5 seconds!
 poll(runAllUpdates, 5000);
+
+
+async function updateCharts() {
+    const stats = await API.get('/api/stats');
+    if (!stats) return;
+
+    const trendContainer = document.getElementById('chart-trends');
+    if (trendContainer && Array.isArray(stats.trend)) {
+        const maxCount = Math.max(1, ...stats.trend.map(d => d.count));
+        trendContainer.innerHTML = stats.trend.length === 0
+            ? '<div class="text-center text-muted-foreground text-sm w-full">No data in the last 7 days</div>'
+                        : stats.trend.map(d => {
+                const barPx = Math.max(6, Math.round((d.count / maxCount) * 180));
+                const day = new Date(d._id).toLocaleDateString(undefined, { weekday: 'short' });
+                return `
+                    <div class="flex flex-col items-center justify-end flex-1 h-full">
+                        <div class="text-[10px] text-muted-foreground mb-1">${d.count}</div>
+                        <div class="w-full rounded-t" style="height:${barPx}px; background:#dc2626"></div>
+                        <div class="text-[10px] text-muted-foreground mt-2">${day}</div>
+                    </div>
+                `;
+            }).join('');
+    }
+
+    const mediaContainer = document.getElementById('chart-media');
+    if (mediaContainer && stats.byType) {
+        const entries = Object.entries(stats.byType);
+        const total = entries.reduce((sum, [, count]) => sum + count, 0) || 1;
+        mediaContainer.innerHTML = entries.length === 0
+            ? '<div class="text-center text-muted-foreground text-sm">No data available</div>'
+            : entries.map(([type, count]) => {
+                const pct = Math.round((count / total) * 100);
+                return `
+                    <div>
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-muted-foreground capitalize">${type}</span>
+                            <span class="text-primary font-medium">${count}</span>
+                        </div>
+                        <div class="w-full bg-muted/30 rounded-full h-2">
+                            <div class="bg-primary h-2 rounded-full" style="width:${pct}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+    }
+}
+
+if (typeof updateDashboard === 'function') {
+    const _origUpdateDashboard = updateDashboard;
+    updateDashboard = async function() {
+        await _origUpdateDashboard();
+        await updateCharts();
+    };
+} else {
+    setInterval(updateCharts, 5000);
+    updateCharts();
+}
+
+function reportQueryString(extra = {}) {
+    const params = new URLSearchParams({ report: 1, ...extra });
+    const from = document.getElementById('report-from')?.value;
+    const to = document.getElementById('report-to')?.value;
+    const platform = document.getElementById('report-platform')?.value;
+    const minRisk = document.getElementById('report-minrisk')?.value;
+    if (from) params.set('from', from);
+    if (to) params.set('to', to);
+    if (platform) params.set('platform', platform);
+    if (minRisk) params.set('minRisk', minRisk);
+    return params.toString();
+}
+
+async function updateReports() {
+    const data = await API.get(`/api/stats?${reportQueryString()}`);
+    if (!data) return;
+
+    document.getElementById('report-total').innerText = data.summary.totalDetections;
+    document.getElementById('report-high').innerText = data.summary.highRisk;
+    document.getElementById('report-medium').innerText = data.summary.mediumRisk;
+    document.getElementById('report-low').innerText = data.summary.lowRisk;
+
+    const kwBody = document.getElementById('report-keywords-tbody');
+    kwBody.innerHTML = data.topKeywords.length
+        ? data.topKeywords.map(k => `
+            <tr class="border-b border-border">
+                <td class="py-2">${esc(k.term)}</td>
+                <td class="py-2 text-right text-muted-foreground">${k.count}</td>
+            </tr>`).join('')
+        : `<tr><td class="py-2 text-muted-foreground">No data</td></tr>`;
+
+    const acctBody = document.getElementById('report-accounts-tbody');
+    acctBody.innerHTML = data.topAccounts.length
+        ? data.topAccounts.map(a => `
+            <tr class="border-b border-border">
+                <td class="py-2">${esc(a.account)}</td>
+                <td class="py-2 text-right text-muted-foreground">${a.count}</td>
+            </tr>`).join('')
+        : `<tr><td class="py-2 text-muted-foreground">No data</td></tr>`;
+}
+
+function downloadReportCsv() {
+    window.open(`/api/stats?${reportQueryString({ format: 'csv' })}`, '_blank');
+}
