@@ -177,13 +177,24 @@ async function updateInstagram() {
             const timeStr = new Date(det.ts).toLocaleTimeString();
             
             const simulatedTag = det.simulated ? `<span class="ml-2 px-2 py-0.5 bg-yellow-500/20 text-yellow-500 text-[10px] rounded uppercase">Simulated</span>` : '';
+            const reasonsHtml = (det.reasons || []).map(r => `<li>- ${esc(r)}</li>`).join('');
+            const imageHtml = (det.imageLabels && det.imageLabels.length > 0) ? `<li>📸 AI found: ${esc(det.imageLabels.join(', '))}</li>` : '';
             
             tr.innerHTML = `
                 <td class="py-3 px-4 text-sm text-gray-500">${timeStr}</td>
                 <td class="py-3 px-4">${esc(det.chatTitle)}</td>
                 <td class="py-3 px-4">${esc(det.username)}</td>
                 <td class="py-3 px-4">${riskBadge(det.risk)}</td>
-                <td class="py-3 px-4">${esc(det.text)} ${simulatedTag}</td>
+                <td class="py-3 px-4">
+                    <div>${esc(det.text)} ${simulatedTag}</div>
+                    <details class="mt-2 text-xs text-gray-500 bg-gray-100 p-2 rounded">
+                        <summary class="cursor-pointer text-blue-600 font-medium">Why flagged?</summary>
+                        <ul class="mt-1 space-y-1">
+                            ${reasonsHtml}
+                            ${imageHtml}
+                        </ul>
+                    </details>
+                </td>
             `;
             tbody.appendChild(tr);
         });
