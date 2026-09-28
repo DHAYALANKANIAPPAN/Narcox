@@ -9,9 +9,9 @@ const esc = (s) => {
 
 // A tool to generate a colored badge based on the risk score (0-10)
 const riskBadge = (risk) => {
-    if (risk >= 7) return `<span class="px-2 py-1 bg-red-500/20 text-red-400 rounded-full text-xs font-medium">High (${risk})</span>`;
-    if (risk >= 4) return `<span class="px-2 py-1 bg-orange-500/20 text-orange-400 rounded-full text-xs font-medium">Medium (${risk})</span>`;
-    return `<span class="px-2 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-medium">Low (${risk})</span>`;
+    if (risk >= 7) return `<span class="px-2 py-1 bg-red-100 text-red-800 border border-red-200 rounded-full text-xs font-medium">High (${risk})</span>`;
+    if (risk >= 4) return `<span class="px-2 py-1 bg-orange-100 text-orange-800 border border-orange-200 rounded-full text-xs font-medium">Medium (${risk})</span>`;
+    return `<span class="px-2 py-1 bg-green-100 text-green-800 border border-green-200 rounded-full text-xs font-medium">Low (${risk})</span>`;
 };
 
 // A tool that runs a function immediately, and then again every 5 seconds
