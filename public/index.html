@@ -399,11 +399,16 @@
                             <h2 class="text-2xl font-bold text-primary">Entity Network Map</h2>
                             <p class="text-muted-foreground">AI-driven relationship mapping (Sellers, Buyers, Crypto, Phones)</p>
                         </div>
-                        <div class="flex space-x-2 text-xs">
-                            <span class="px-2 py-1 bg-red-500/20 text-red-400 rounded">â— High Risk</span>
-                            <span class="px-2 py-1 bg-blue-500/20 text-blue-400 rounded">â— Accounts</span>
-                            <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded">â— Phones</span>
+                            <div class="flex space-x-2 text-xs">
+                            <span class="px-2 py-1 bg-red-500/20 text-red-400 rounded">&#9679; High Risk</span>
+                            <span class="px-2 py-1 bg-blue-500/20 text-blue-400 rounded">&#9679; Accounts</span>
+                            <span class="px-2 py-1 bg-purple-500/20 text-purple-400 rounded">&#9670; Groups</span>
+                            <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded">&#9632; Phones</span>
+                            <span class="px-2 py-1 bg-amber-500/20 text-amber-400 rounded">&#9650; UPI</span>
                         </div>
+                    </div>
+                    <div id="network-controls" class="mb-2"></div>
+                    <div id="network-map-container"></div>
                     </div>
                     <div id="network-map-container"></div>
                 </div>
@@ -513,8 +518,8 @@
                         <div class="chart-container p-6 rounded-lg">
                             <h3 class="text-lg font-semibold mb-4 text-primary">Connected Sources</h3>
                             <ul class="space-y-3">
-                                <li class="flex items-center justify-between"><span class="text-muted-foreground">Telegram Bot</span> <span class="text-green-400">Connected âœ“</span></li>
-                                <li class="flex items-center justify-between"><span class="text-muted-foreground">Instagram Graph API</span> <span class="text-green-400">Connected âœ“</span></li>
+                                <li class="flex items-center justify-between"><span class="text-muted-foreground">Telegram Bot</span> <span class="text-green-400">Connected &#10003</span></li>
+                                <li class="flex items-center justify-between"><span class="text-muted-foreground">Instagram Graph API</span> <span class="text-green-400">Connected &10003</span></li>
                                 <li class="flex items-center justify-between"><span class="text-muted-foreground">WhatsApp</span> <span class="text-red-400">Not Supported (E2E Encrypted)</span></li>
                             </ul>
                         </div>

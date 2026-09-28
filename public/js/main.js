@@ -237,53 +237,120 @@ async function updateEvidence() {
 }
 
 let networkInitialized = false;
+let netInstance = null;
+
 async function updateNetwork() {
-    // Only init the physics network once so it doesn't reset every 5 seconds
     if (networkInitialized) return;
-    
     const data = await API.get('/api/network');
     const container = document.getElementById('network-map-container');
     if (!data || !container || !window.vis) return;
-    
     networkInitialized = true;
-    
-    // Map data for vis-network
+
+    // 1. Merge duplicate edges into one weighted edge
+    const merged = {};
+    data.edges.forEach(e => {
+        const k = e.from + '|' + e.to + '|' + e.kind;
+        merged[k] = merged[k] || { ...e, weight: 0 };
+        merged[k].weight++;
+    });
+    const edgeList = Object.values(merged);
+
+    // 2. Node styling by type/risk
+    const palette = { account: '#3b82f6', group: '#a855f7', phones: '#22c55e',
+                      upi: '#f59e0b', wallets: '#eab308', emails: '#06b6d4' };
+    const shapes = { account: 'dot', group: 'diamond', phones: 'square',
+                     upi: 'triangle', wallets: 'star', emails: 'hexagon' };
+    const info = {};
     const nodes = new vis.DataSet(data.nodes.map(n => {
-        let color = '#3b82f6'; // account blue
-        if (n.type === 'group') color = '#a855f7'; // group purple
-        if (n.type === 'phones') color = '#22c55e'; // phone green
-        if (n.risk >= 8) color = '#ef4444'; // high risk red
-        
+        info[n.id] = n;
+        const base = palette[n.type] || '#64748b';
+        const hot = n.risk >= 8;
         return {
             id: n.id,
-            label: n.label + (n.role ? `\n(${n.role})` : ''),
-            value: n.risk * n.degree, // Size based on risk and connections
-            color: { background: color, border: '#111' },
-            font: { color: '#fff', face: 'monospace', size: 12 }
+            label: n.label,
+            shape: shapes[n.type] || 'dot',
+            value: Math.max(4, n.risk * 2 + (n.degree || 0) * 3),
+            color: {
+                background: hot ? '#ef4444' : base,
+                border: hot ? '#fecaca' : '#111',
+                highlight: { background: '#fff', border: '#ef4444' }
+            },
+            borderWidth: hot ? 3 : 1,
+            shadow: hot ? { enabled: true, color: 'rgba(239,68,68,0.7)', size: 25, x: 0, y: 0 } : false,
+            font: { color: '#e5e7eb', size: 13, face: 'monospace', strokeWidth: 3, strokeColor: '#000' },
+            title: `${n.label}\nType: ${n.type}\nRisk: ${n.risk}/10\nConnections: ${n.degree || 0}` +
+                   (n.role ? `\nRole: ${n.role}` : '')
         };
     }));
-    
-    const edges = new vis.DataSet(data.edges.map(e => ({
-        from: e.from,
-        to: e.to,
-        label: e.kind,
-        color: { color: '#404040' },
-        font: { color: '#a3a3a3', size: 10, align: 'middle' },
-        arrows: 'to'
+
+    const edges = new vis.DataSet(edgeList.map((e, i) => ({
+        id: i, from: e.from, to: e.to,
+        width: Math.min(1 + Math.log2(e.weight + 1) * 1.5, 8),
+        title: `${e.kind} x${e.weight}`,
+        color: { color: '#525252', highlight: '#ef4444', opacity: 0.7 },
+        smooth: { type: 'continuous' },
+        arrows: { to: { enabled: true, scaleFactor: 0.5 } }
     })));
 
-    const options = {
-        nodes: { shape: 'dot', scaling: { min: 10, max: 30 } },
+    netInstance = new vis.Network(container, { nodes, edges }, {
+        nodes: { scaling: { min: 14, max: 45 } },
+        interaction: { hover: true, tooltipDelay: 100, navigationButtons: true, keyboard: true },
         physics: {
-            forceAtlas2Based: { gravitationalConstant: -50, centralGravity: 0.01, springLength: 100, springConstant: 0.08 },
-            maxVelocity: 50,
             solver: 'forceAtlas2Based',
-            timestep: 0.35,
-            stabilization: { iterations: 150 }
+            forceAtlas2Based: { gravitationalConstant: -80, centralGravity: 0.02, springLength: 140, avoidOverlap: 0.6 },
+            stabilization: { iterations: 200 }
         }
-    };
-    
-    new vis.Network(container, { nodes, edges }, options);
+    });
+
+    // 3. Details panel
+    let panel = document.getElementById('network-panel');
+    if (!panel) {
+        panel = document.createElement('div');
+        panel.id = 'network-panel';
+        panel.style.cssText = 'position:absolute;top:12px;right:12px;width:230px;background:rgba(10,10,10,.92);' +
+            'border:1px solid #333;border-radius:8px;padding:12px;font-size:12px;color:#e5e7eb;display:none;z-index:5';
+        container.style.position = 'relative';
+        container.appendChild(panel);
+    }
+
+    // 4. Click a node to spotlight its neighbors and dim the rest
+    netInstance.on('click', p => {
+        const all = nodes.getIds();
+        if (!p.nodes.length) {
+            nodes.update(all.map(id => ({ id, opacity: 1 })));
+            panel.style.display = 'none';
+            return;
+        }
+        const id = p.nodes[0];
+        const near = new Set([id, ...netInstance.getConnectedNodes(id)]);
+        nodes.update(all.map(x => ({ id: x, opacity: near.has(x) ? 1 : 0.12 })));
+        const n = info[id];
+        panel.innerHTML = `<div style="font-weight:700;color:#ef4444;margin-bottom:6px">${esc(n.label)}</div>` +
+            `<div>Type: ${esc(n.type)}</div><div>Risk: ${n.risk}/10</div>` +
+            `<div>Connections: ${n.degree || 0}</div><div>Messages: ${n.count}</div>` +
+            (n.role ? `<div>Role: ${esc(n.role)}</div>` : '');
+        panel.style.display = 'block';
+    });
+
+    // 5. Search and fit controls
+    const bar = document.getElementById('network-controls');
+    if (bar && !bar.dataset.ready) {
+        bar.dataset.ready = '1';
+        bar.innerHTML = `<input id="net-search" placeholder="Search account..." style="background:#111;border:1px solid #333;color:#fff;padding:4px 8px;border-radius:6px;font-size:12px"> ` +
+            `<button id="net-fit" style="background:#dc2626;color:#fff;padding:4px 10px;border-radius:6px;font-size:12px">Fit</button>`;
+        document.getElementById('net-fit').onclick = () => netInstance.fit({ animation: true });
+        document.getElementById('net-search').oninput = ev => {
+            const q = ev.target.value.toLowerCase();
+            const hit = nodes.get().find(n => q && n.label.toLowerCase().includes(q));
+            if (hit) { netInstance.selectNodes([hit.id]); netInstance.focus(hit.id, { scale: 1.3, animation: true }); }
+        };
+    }
+    netInstance.once('stabilizationIterationsDone', () => netInstance.fit({ animation: true }));
+    window.addEventListener('hashchange', () => {
+        if (location.hash === '#network' && netInstance) {
+            setTimeout(() => { netInstance.redraw(); netInstance.fit({ animation: true }); }, 100);
+        }
+    });
 }
 
 function runAllUpdates() {
