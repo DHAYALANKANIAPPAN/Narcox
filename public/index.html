@@ -314,3 +314,20 @@
     <script src="js/main.js"></script>
 </body>
 </html>
+
+    <script>
+        // Update current time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            const clockEl = document.getElementById('clock');
+            if (clockEl) clockEl.textContent = timeString;
+        }
+        setInterval(updateTime, 1000);
+        updateTime();
+    </script>
