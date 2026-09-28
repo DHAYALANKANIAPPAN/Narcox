@@ -41,8 +41,8 @@
         .page-section { display: none; }
         .page-section:not(.hidden) { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        .stat-card { background: linear-gradient(145deg, #111 0%, #1a1a1a 100%); border: 1px solid #333; }
-        .chart-container { background: #111; border: 1px solid #333; }
+        .stat-card { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 8px; }
+        .chart-container { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 8px; }
         .sidebar-item.active { background: #dc2626; color: #fff; }
         
         /* Hackathon Wow Factor: Evidence Hash Scanning Animation */
@@ -90,12 +90,36 @@
 </head>
 <body class="bg-background text-foreground font-sans">
 
-    <div style="background-color: #0c5699; color: white; font-size: 0.75rem; padding: 4px 20px; display: flex; justify-content: space-between;">
-        <div style="display: flex; gap: 24px;">
-            <div><span style="font-weight: bold;">भारत सरकार</span><br><span>GOVERNMENT OF INDIA</span></div>
-            <div><span style="font-weight: bold;">गृह मंत्रालय</span><br><span>MINISTRY OF HOME AFFAIRS</span></div>
+    <!-- Top thin bar -->
+    <div style="background-color: #ffffff; color: #333; font-size: 0.75rem; padding: 4px 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #eee;">
+        <div style="display: flex; gap: 24px; align-items: center;">
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/4/41/Flag_of_India.svg/20px-Flag_of_India.svg.png" style="height: 12px;" alt="India">
+            <span style="font-weight: 600;">Government of India</span>
         </div>
-        <div style="display: flex; align-items: center;">Language: English</div>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <span style="font-weight: 500;">Screen Reader Access</span>
+            <button style="background: #c62828; color: white; border: none; padding: 4px 12px; font-weight: bold; border-radius: 2px;">SUBMIT A TIP</button>
+        </div>
+    </div>
+
+    <!-- Main NCB Header -->
+    <div style="background-color: #1a365d; padding: 15px 30px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #f97316;">
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <!-- NCB Logo (Using placeholder or wiki image) -->
+            <img src="https://upload.wikimedia.org/wikipedia/en/3/3a/Narcotics_Control_Bureau_logo.png" alt="NCB Logo" style="height: 70px;">
+            
+            <div>
+                <div style="color: #93c5fd; font-size: 0.7rem; letter-spacing: 1px; font-weight: 600; text-transform: uppercase; margin-bottom: 2px;">
+                    GOVERNMENT OF INDIA &mdash; MINISTRY OF HOME AFFAIRS
+                </div>
+                <div style="background-color: #f97316; color: white; display: inline-block; padding: 4px 12px; font-size: 1.5rem; font-weight: 800; letter-spacing: 0.5px;">
+                    NARCOTICS CONTROL BUREAU
+                </div>
+            </div>
+        </div>
+        
+        <!-- Indian Emblem on right -->
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Emblem of India" style="height: 60px; filter: brightness(0) invert(1);">
     </div>
     <div style="background-color: white; padding: 10px 20px; display: flex; align-items: center; border-bottom: 2px solid #1d84c6; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
         <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Emblem of India" style="height: 64px; margin-right: 24px;">
