@@ -41,8 +41,8 @@
         .page-section { display: none; }
         .page-section:not(.hidden) { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        .stat-card { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 8px; }
-        .chart-container { background: #ffffff; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border-radius: 8px; }
+        .stat-card { background: #f1f5f9; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-radius: 8px; }
+        .chart-container { background: #f1f5f9; border: 1px solid #cbd5e1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-radius: 8px; }
         .sidebar-item.active { background: #dc2626; color: #fff; }
         
         /* Hackathon Wow Factor: Evidence Hash Scanning Animation */
@@ -90,12 +90,17 @@
 </head>
 <body class="bg-background text-foreground font-sans">
 
+    
     <!-- Top thin bar -->
-    <div style="background-color: #ffffff; color: #333; font-size: 0.75rem; padding: 4px 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #eee;">
+    <div style="background-color: #e2e8f0; color: #475569; font-size: 0.75rem; padding: 6px 20px; display: flex; justify-content: space-between; border-bottom: 1px solid #cbd5e1;">
         <div style="display: flex; gap: 24px; align-items: center;">
             <img src="https://upload.wikimedia.org/wikipedia/en/thumb/4/41/Flag_of_India.svg/20px-Flag_of_India.svg.png" style="height: 12px;" alt="India">
-            <span style="font-weight: 600;">Government of India</span>
+            <span style="font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Government of India - Internal Use Only</span>
         </div>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <span style="font-weight: 600; color: #dc2626;">AUTHORIZED NCB PERSONNEL ONLY</span>
+        </div>
+    </div>
         <div style="display: flex; align-items: center; gap: 15px;">
             <span style="font-weight: 500;">Screen Reader Access</span>
             <button style="background: #c62828; color: white; border: none; padding: 4px 12px; font-weight: bold; border-radius: 2px;">SUBMIT A TIP</button>
@@ -106,7 +111,11 @@
     <div style="background-color: #1a365d; padding: 15px 30px; display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #f97316;">
         <div style="display: flex; align-items: center; gap: 20px;">
             <!-- NCB Logo (Using placeholder or wiki image) -->
-            <img src="https://upload.wikimedia.org/wikipedia/en/3/3a/Narcotics_Control_Bureau_logo.png" alt="NCB Logo" style="height: 70px;">
+            
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#f97316" style="height: 50px; width: 50px;">
+                <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/>
+            </svg>
+
             
             <div>
                 <div style="color: #93c5fd; font-size: 0.7rem; letter-spacing: 1px; font-weight: 600; text-transform: uppercase; margin-bottom: 2px;">
@@ -121,17 +130,11 @@
         <!-- Indian Emblem on right -->
         <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Emblem of India" style="height: 60px; filter: brightness(0) invert(1);">
     </div>
-    <div style="background-color: white; padding: 10px 20px; display: flex; align-items: center; border-bottom: 2px solid #1d84c6; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Emblem of India" style="height: 64px; margin-right: 24px;">
-        <div style="flex-grow: 1;">
-            <h1 style="font-size: 1.25rem; font-weight: bold; color: #1f2937;">राष्ट्रीय नारकोएक्स पोर्टल</h1>
-            <h2 style="font-size: 1.5rem; font-weight: bold; color: #111827;">National NarcoX Intelligence Portal</h2>
         </div>
-    </div>
 
     <div class="flex h-screen">
         <!-- Sidebar -->
-        <div class="w-64 bg-card border-r border-border flex flex-col">
+        <div class="w-64 bg-[#e2e8f0] border-r border-border flex flex-col">
             <!-- Navigation -->
             <nav class="flex-1 p-4 space-y-2">
                 <a href="#dashboard" class="sidebar-item active flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
@@ -202,7 +205,7 @@
         <!-- Main Content -->
         <div class="flex-1 min-w-0 flex flex-col overflow-hidden">
             <!-- Header -->
-            <header class="bg-card border-b border-border px-6 py-4">
+            <header class="bg-[#e2e8f0] border-b border-border px-6 py-4">
                 <div class="flex items-center justify-between">
                     <div>
                         <h1 class="text-2xl font-bold text-foreground">Intelligence Dashboard</h1>
