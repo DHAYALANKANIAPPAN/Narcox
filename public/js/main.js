@@ -131,6 +131,27 @@ async function updateTelegram() {
         });
     }
 }
+window.downloadEvidence = (detectionId) => {
+    const ev = (window._evidenceCache || []).find(e => e.detectionId === detectionId);
+    if (!ev) { alert('Evidence package not found.'); return; }
+
+    const pkg = {
+        exportedAt: new Date().toISOString(),
+        exportedBy: 'Det. John Doe',
+        note: 'Verify by re-hashing "content" with SHA-256 and comparing to contentHash/packageHash.',
+        package: ev
+    };
+
+    const blob = new Blob([JSON.stringify(pkg, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `narcox-evidence-${detectionId}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+};
 
 async function updateInstagram() {
     // We can hardcode the query params for now like we did for Telegram
@@ -171,6 +192,7 @@ async function updateEvidence() {
     const evidence = await API.get('/api/evidence');
     const container = document.getElementById('evidence-container');
     if (!evidence || !container) return;
+    window._evidenceCache = evidence;
     
     container.innerHTML = '';
     
@@ -205,7 +227,7 @@ async function updateEvidence() {
                     <div class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Custody Chain</div>
                     ${custodyHtml}
                 </div>
-                <button onclick="alert('Downloading forensic package for ${ev.detectionId}')" class="text-xs bg-primary hover:bg-red-700 text-white px-4 py-2 rounded transition-colors flex items-center gap-2">
+                <button onclick="downloadEvidence('${ev.detectionId}')" class="text-xs bg-primary hover:bg-red-700 text-white px-4 py-2 rounded transition-colors flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     Download Forensic JSON
                 </button>
