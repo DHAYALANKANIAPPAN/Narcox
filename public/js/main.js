@@ -18,14 +18,14 @@ async function updateDashboard() {
         // Loop over the new recent alerts and create HTML for them
         stats.recent.forEach(alert => {
             const tr = document.createElement('tr');
-            tr.className = 'border-b border-border hover:bg-muted/50';
+            tr.className = 'border-b border-gray-200 hover:bg-gray-50';
             
             tr.innerHTML = `
                 <td class="py-3 px-4 font-mono text-sm">#${esc(alert._id.substring(0,6))}</td>
                 <td class="py-3 px-4 capitalize">${esc(alert.platform)}</td>
                 <td class="py-3 px-4">${esc(alert.username)}</td>
                 <td class="py-3 px-4">${riskBadge(alert.risk)}</td>
-                <td class="py-3 px-4 text-muted-foreground truncate max-w-[200px]">${esc(alert.text)}</td>
+                <td class="py-3 px-4 text-gray-500 truncate max-w-[200px]">${esc(alert.text)}</td>
             `;
             tbody.appendChild(tr);
         });
@@ -52,18 +52,18 @@ async function updateAlerts() {
         
         alerts.forEach(alert => {
             const tr = document.createElement('tr');
-            tr.className = 'border-b border-border hover:bg-muted/50';
+            tr.className = 'border-b border-gray-200 hover:bg-gray-50';
             
             const timeStr = new Date(alert.ts).toLocaleTimeString();
             
             tr.innerHTML = `
-                <td class="py-3 px-4 text-sm text-muted-foreground">${timeStr}</td>
+                <td class="py-3 px-4 text-sm text-gray-500">${timeStr}</td>
                 <td class="py-3 px-4 capitalize">${esc(alert.platform)}</td>
                 <td class="py-3 px-4">${esc(alert.username)}</td>
                 <td class="py-3 px-4">${riskBadge(alert.risk)}</td>
-                <td class="py-3 px-4 text-muted-foreground">${esc(alert.text)}</td>
+                <td class="py-3 px-4 text-gray-500">${esc(alert.text)}</td>
                 <td class="py-3 px-4">
-                    <button onclick="createEvidence('${alert._id}')" class="px-3 py-1 bg-blue-500/20 text-blue-400 rounded hover:bg-blue-500/30 text-xs font-medium transition-colors">
+                    <button onclick="createEvidence('${alert._id}')" class="px-3 py-1 bg-blue-100 text-blue-600 rounded hover:bg-blue-200 text-xs font-medium transition-colors">
                         Create Evidence
                     </button>
                 </td>
@@ -97,13 +97,13 @@ async function updateTelegram() {
         tbody.innerHTML = '';
         
         if (detections.length === 0) {
-            tbody.innerHTML = `<tr id="empty-state"><td colspan="5" class="py-6 text-center text-muted-foreground font-medium">No active alerts</td></tr>`;
+            tbody.innerHTML = `<tr id="empty-state"><td colspan="5" class="py-6 text-center text-gray-500 font-medium">No active alerts</td></tr>`;
             return;
         }
 
         detections.forEach(det => {
             const tr = document.createElement('tr');
-            tr.className = 'border-b border-border hover:bg-muted/50';
+            tr.className = 'border-b border-gray-200 hover:bg-gray-50';
             const timeStr = new Date(det.ts).toLocaleTimeString();
             
             // Format explanations nicely
@@ -113,14 +113,14 @@ async function updateTelegram() {
             const phonesHtml = (idents.phones || []).map(p => `<li>📞 ${esc(p)}</li>`).join('');
             
             tr.innerHTML = `
-                <td class="py-3 px-4 text-sm text-muted-foreground">${timeStr}</td>
+                <td class="py-3 px-4 text-sm text-gray-500">${timeStr}</td>
                 <td class="py-3 px-4">${esc(det.chatTitle)}</td>
                 <td class="py-3 px-4">${esc(det.username)}</td>
                 <td class="py-3 px-4">${riskBadge(det.risk)}</td>
                 <td class="py-3 px-4">
                     <div>${esc(det.text)}</div>
-                    <details class="mt-2 text-xs text-muted-foreground bg-muted/20 p-2 rounded">
-                        <summary class="cursor-pointer text-blue-400 font-medium">Why flagged?</summary>
+                    <details class="mt-2 text-xs text-gray-500 bg-gray-100 p-2 rounded">
+                        <summary class="cursor-pointer text-blue-600 font-medium">Why flagged?</summary>
                         <ul class="mt-1 space-y-1">
                             ${reasonsHtml}
                             ${imageHtml}
@@ -167,19 +167,19 @@ async function updateInstagram() {
         tbody.innerHTML = '';
         
         if (detections.length === 0) {
-            tbody.innerHTML = `<tr id="empty-state"><td colspan="5" class="py-6 text-center text-muted-foreground font-medium">No active alerts</td></tr>`;
+            tbody.innerHTML = `<tr id="empty-state"><td colspan="5" class="py-6 text-center text-gray-500 font-medium">No active alerts</td></tr>`;
             return;
         }
 
         detections.forEach(det => {
             const tr = document.createElement('tr');
-            tr.className = 'border-b border-border hover:bg-muted/50';
+            tr.className = 'border-b border-gray-200 hover:bg-gray-50';
             const timeStr = new Date(det.ts).toLocaleTimeString();
             
             const simulatedTag = det.simulated ? `<span class="ml-2 px-2 py-0.5 bg-yellow-500/20 text-yellow-500 text-[10px] rounded uppercase">Simulated</span>` : '';
             
             tr.innerHTML = `
-                <td class="py-3 px-4 text-sm text-muted-foreground">${timeStr}</td>
+                <td class="py-3 px-4 text-sm text-gray-500">${timeStr}</td>
                 <td class="py-3 px-4">${esc(det.chatTitle)}</td>
                 <td class="py-3 px-4">${esc(det.username)}</td>
                 <td class="py-3 px-4">${riskBadge(det.risk)}</td>
@@ -199,7 +199,7 @@ async function updateEvidence() {
     container.innerHTML = '';
     
     if (evidence.length === 0) {
-        container.innerHTML = `<div id="empty-state" class="py-6 text-center text-muted-foreground font-medium">No forensic packages available</div>`;
+        container.innerHTML = `<div id="empty-state" class="py-6 text-center text-gray-500 font-medium">No forensic packages available</div>`;
         return;
     }
 
@@ -209,7 +209,7 @@ async function updateEvidence() {
             : `<span class="text-sm px-3 py-1 bg-red-500/10 border border-red-500/30 text-red-500 rounded">✗ TAMPERED</span>`;
             
         const custodyHtml = ev.custody.map(c => 
-            `<div class="flex justify-between text-xs text-muted-foreground"><span class="font-mono">${c.action} by ${c.by}</span> <span>${new Date(c.at).toLocaleString()}</span></div>`
+            `<div class="flex justify-between text-xs text-gray-500"><span class="font-mono">${c.action} by ${c.by}</span> <span>${new Date(c.at).toLocaleString()}</span></div>`
         ).join('');
         
         container.innerHTML += `
@@ -217,16 +217,16 @@ async function updateEvidence() {
                 <div class="flex justify-between items-start mb-4">
                     <div>
                         <h3 class="font-mono text-lg text-primary">CASE #${ev.detectionId}</h3>
-                        <p class="text-xs text-muted-foreground mt-1">Package Hash: <span class="font-mono text-[10px] bg-muted/30 p-1 rounded break-all">${ev.packageHash}</span></p>
+                        <p class="text-xs text-gray-500 mt-1">Package Hash: <span class="font-mono text-[10px] bg-muted/30 p-1 rounded break-all">${ev.packageHash}</span></p>
                     </div>
                     ${verifiedBadge}
                 </div>
-                <div class="bg-black/50 p-3 rounded mb-4 font-mono text-xs border border-border">
-                    <div class="text-blue-400 mb-2">RAW CONTENT:</div>
+                <div class="bg-black/50 p-3 rounded mb-4 font-mono text-xs border border-gray-200">
+                    <div class="text-blue-600 mb-2">RAW CONTENT:</div>
                     ${JSON.stringify(ev.content, null, 2)}
                 </div>
                 <div class="space-y-2 mb-4">
-                    <div class="text-xs font-bold text-muted-foreground uppercase tracking-wider">Custody Chain</div>
+                    <div class="text-xs font-bold text-gray-500 uppercase tracking-wider">Custody Chain</div>
                     ${custodyHtml}
                 </div>
                 <button onclick="downloadEvidence('${ev.detectionId}')" class="text-xs bg-primary hover:bg-red-700 text-white px-4 py-2 rounded transition-colors flex items-center gap-2">
@@ -376,15 +376,15 @@ async function updateCharts() {
     if (trendContainer && Array.isArray(stats.trend)) {
         const maxCount = Math.max(1, ...stats.trend.map(d => d.count));
         trendContainer.innerHTML = stats.trend.length === 0
-            ? '<div class="text-center text-muted-foreground text-sm w-full">No data in the last 7 days</div>'
+            ? '<div class="text-center text-gray-500 text-sm w-full">No data in the last 7 days</div>'
                         : stats.trend.map(d => {
                 const barPx = Math.max(6, Math.round((d.count / maxCount) * 180));
                 const day = new Date(d._id).toLocaleDateString(undefined, { weekday: 'short' });
                 return `
                     <div class="flex flex-col items-center justify-end flex-1 h-full">
-                        <div class="text-[10px] text-muted-foreground mb-1">${d.count}</div>
+                        <div class="text-[10px] text-gray-500 mb-1">${d.count}</div>
                         <div class="w-full rounded-t" style="height:${barPx}px; background:#dc2626"></div>
-                        <div class="text-[10px] text-muted-foreground mt-2">${day}</div>
+                        <div class="text-[10px] text-gray-500 mt-2">${day}</div>
                     </div>
                 `;
             }).join('');
@@ -395,13 +395,13 @@ async function updateCharts() {
         const entries = Object.entries(stats.byType);
         const total = entries.reduce((sum, [, count]) => sum + count, 0) || 1;
         mediaContainer.innerHTML = entries.length === 0
-            ? '<div class="text-center text-muted-foreground text-sm">No data available</div>'
+            ? '<div class="text-center text-gray-500 text-sm">No data available</div>'
             : entries.map(([type, count]) => {
                 const pct = Math.round((count / total) * 100);
                 return `
                     <div>
                         <div class="flex justify-between text-xs mb-1">
-                            <span class="text-muted-foreground capitalize">${type}</span>
+                            <span class="text-gray-500 capitalize">${type}</span>
                             <span class="text-primary font-medium">${count}</span>
                         </div>
                         <div class="w-full bg-muted/30 rounded-full h-2">
@@ -449,20 +449,20 @@ async function updateReports() {
     const kwBody = document.getElementById('report-keywords-tbody');
     kwBody.innerHTML = data.topKeywords.length
         ? data.topKeywords.map(k => `
-            <tr class="border-b border-border">
+            <tr class="border-b border-gray-200">
                 <td class="py-2">${esc(k.term)}</td>
-                <td class="py-2 text-right text-muted-foreground">${k.count}</td>
+                <td class="py-2 text-right text-gray-500">${k.count}</td>
             </tr>`).join('')
-        : `<tr><td class="py-2 text-muted-foreground">No data</td></tr>`;
+        : `<tr><td class="py-2 text-gray-500">No data</td></tr>`;
 
     const acctBody = document.getElementById('report-accounts-tbody');
     acctBody.innerHTML = data.topAccounts.length
         ? data.topAccounts.map(a => `
-            <tr class="border-b border-border">
+            <tr class="border-b border-gray-200">
                 <td class="py-2">${esc(a.account)}</td>
-                <td class="py-2 text-right text-muted-foreground">${a.count}</td>
+                <td class="py-2 text-right text-gray-500">${a.count}</td>
             </tr>`).join('')
-        : `<tr><td class="py-2 text-muted-foreground">No data</td></tr>`;
+        : `<tr><td class="py-2 text-gray-500">No data</td></tr>`;
 }
 
 function downloadReportCsv() {
