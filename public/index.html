@@ -1,33 +1,20 @@
-﻿<!DOCTYPE html>
-<html lang="en" class="dark">
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NarcoX Intelligence System</title>
+    <title>National NarcoX Portal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
-            darkMode: 'class',
             theme: {
                 extend: {
                     colors: {
-                        background: '#0a0a0a',
-                        foreground: '#fafafa',
-                        card: '#111111',
-                        'card-foreground': '#fafafa',
-                        primary: '#dc2626',
-                        'primary-foreground': '#fafafa',
-                        secondary: '#1f2937',
-                        'secondary-foreground': '#f9fafb',
-                        muted: '#262626',
-                        'muted-foreground': '#a3a3a3',
-                        accent: '#1f2937',
-                        'accent-foreground': '#f9fafb',
-                        destructive: '#dc2626',
-                        'destructive-foreground': '#fafafa',
-                        border: '#262626',
-                        input: '#262626',
-                        ring: '#dc2626',
+                        primary: '#1d84c6', // Gov Blue
+                        secondary: '#f8fafc',
+                        dark: '#0f172a',
+                        card: '#ffffff',
+                        border: '#e2e8f0',
                     }
                 }
             }
@@ -35,554 +22,294 @@
     </script>
     <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <style>
-        .sidebar-item:hover {
-            background-color: rgba(220, 38, 38, 0.1);
-            border-left: 3px solid #dc2626;
-        }
+        body { background-color: #f1f5f9; color: #1e293b; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .gov-top-bar { background-color: #0c5699; color: white; font-size: 0.75rem; padding: 4px 20px; display: flex; justify-content: space-between; }
+        .gov-header { background-color: white; padding: 10px 20px; display: flex; align-items: center; border-bottom: 2px solid #1d84c6; }
+        .gov-nav { background-color: #1d84c6; color: white; padding: 10px 20px; display: flex; gap: 20px; font-weight: 500; font-size: 0.9rem; }
+        .gov-nav a { cursor: pointer; padding: 5px 10px; border-radius: 4px; transition: background 0.2s; }
+        .gov-nav a:hover, .gov-nav a.active { background-color: #0c5699; }
+        
         .page-section { display: none; }
         .page-section:not(.hidden) { display: block; animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
-        .stat-card { background: linear-gradient(145deg, #111 0%, #1a1a1a 100%); border: 1px solid #333; }
-        .chart-container { background: #111; border: 1px solid #333; }
-        .sidebar-item.active { background: #dc2626; color: #fff; }
+        
+        .stat-card { background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .chart-container { background: white; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        
+        /* Table Styles */
+        th { background-color: #f8fafc; color: #475569; font-weight: 600; text-transform: uppercase; font-size: 0.75rem; padding: 12px 16px; border-bottom: 1px solid #e2e8f0; }
+        td { padding: 12px 16px; border-bottom: 1px solid #e2e8f0; font-size: 0.875rem; color: #1e293b; }
+        tr:hover { background-color: #f1f5f9; }
         
         /* Hackathon Wow Factor: Evidence Hash Scanning Animation */
         @keyframes scanHash {
-            0% { background-position: -200% center; }
-            100% { background-position: 200% center; }
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
         }
-        .hash-verified {
-            background: linear-gradient(90deg, #166534 0%, #22c55e 50%, #166534 100%);
-            background-size: 200% auto;
-            color: transparent;
-            -webkit-background-clip: text;
-            background-clip: text;
-            animation: scanHash 3s linear infinite;
-            font-family: monospace;
-        }
-        
-        #network-map-container {
-            width: 100%;
-            height: 600px;
-            background: #0a0a0a;
-            border: 1px solid #333;
-            border-radius: 0.5rem;
+        .hash-verifying {
+            background: linear-gradient(90deg, transparent, rgba(29, 132, 198, 0.2), transparent);
+            background-size: 200% 100%;
+            animation: scanHash 1.5s infinite linear;
         }
     </style>
-<script>
-(async function(){
-  try {
-    const res = await fetch('/api/auth');
-    if (!res.ok) window.location.href = '/login.html';
-  } catch (e) { window.location.href = '/login.html'; }
-})();
-</script>
 </head>
-<body class="bg-background text-foreground font-sans">
-    <div class="flex h-screen">
-        <!-- Sidebar -->
-        <div class="w-64 bg-card border-r border-border flex flex-col">
-            <!-- Logo -->
-            <div class="p-6 border-b border-border">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                        <span class="text-primary-foreground font-bold text-lg">N</span>
-                    </div>
-                    <div>
-                        <h1 class="text-xl font-bold text-foreground">NarcoX</h1>
-                        <p class="text-xs text-muted-foreground">Intelligence System</p>
-                    </div>
-                </div>
+<body class="flex flex-col min-h-screen">
+
+    <!-- Gov Top Bar -->
+    <div class="gov-top-bar">
+        <div class="flex gap-6">
+            <div>
+                <span class="font-bold">भारत सरकार</span><br>
+                <span>GOVERNMENT OF INDIA</span>
             </div>
-
-            <!-- Navigation -->
-            <nav class="flex-1 p-4 space-y-2">
-                <a href="#dashboard" class="sidebar-item active flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zm10 0a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path>
-                    </svg>
-                    <span>Dashboard</span>
-                </a>
-                <a href="#evidence" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    <span>Evidence</span>
-                </a>
-                <a href="#network" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"></path>
-                    </svg>
-                    <span>Network Map</span>
-                </a>
-                <a href="#alerts" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                    </svg>
-                    <span>Alerts</span>
-                </a>
-                <a href="#telegram" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                    </svg>
-                    <span>Telegram</span>
-                </a>
-                <a href="#instagram" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4h16v16H4z M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6 M16.5 7.5v.01"></path>
-                    </svg>
-                    <span>Instagram</span>
-                </a>
-                <a href="#settings" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    </svg>
-                    <span>Settings</span>
-                </a>
-                <a href="#reports" class="sidebar-item flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                    </svg>
-                    <span>Reports</span>
-                </a>
-            </nav>
-
-            <!-- User Profile -->
-            <div class="p-4 border-t border-border">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 bg-secondary rounded-full flex items-center justify-center">
-                        <span class="text-secondary-foreground font-medium text-sm">JD</span>
-                    </div>
-                    <div class="flex-1">
-                        <p class="text-sm font-medium">Det. John Doe</p>
-                        <p class="text-xs text-muted-foreground">Badge #1234</p>
-                    </div>
-                </div>
+            <div>
+                <span class="font-bold">गृह मंत्रालय</span><br>
+                <span>MINISTRY OF HOME AFFAIRS</span>
             </div>
         </div>
-
-        <!-- Main Content -->
-        <div class="flex-1 flex flex-col overflow-hidden">
-            <!-- Header -->
-            <header class="bg-card border-b border-border px-6 py-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h1 class="text-2xl font-bold text-foreground">Intelligence Dashboard</h1>
-                        <p class="text-muted-foreground">Real-time law enforcement intelligence system</p>
-                    </div>
-                    <div class="flex items-center space-x-4">
-                        <div class="text-right">
-                            <p class="text-sm font-medium">Current Time</p>
-                            <p class="text-xs text-muted-foreground" id="current-time"></p>
-                        </div>
-                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                    </div>
-                </div>
-            </header>
-
-            <!-- Dashboard Content -->
-            <main class="flex-1 overflow-auto p-6" id="main-content">
-                
-                <!-- DASHBOARD PAGE -->
-                <div id="page-dashboard" class="page-section">
-                    <!-- Stats Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                    <div class="stat-card p-6 rounded-lg">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-muted-foreground text-sm font-medium">Active Alerts</p>
-                                <p class="text-3xl font-bold text-primary" id="stat-total-alerts">23</p>
-                            </div>
-                            <div class="w-12 h-12 bg-primary/20 rounded-lg flex items-center justify-center">
-                                <svg class="w-6 h-6 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="mt-4 flex items-center">
-                            <span class="text-green-500 text-sm font-medium">+12%</span>
-                            <span class="text-muted-foreground text-sm ml-2">from last week</span>
-                        </div>
-                    </div>
-
-                    <div class="stat-card p-6 rounded-lg">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-muted-foreground text-sm font-medium">Evidence Packages</p>
-                                <p class="text-3xl font-bold text-blue-400" id="stat-evidence">156</p>
-                            </div>
-                            <div class="w-12 h-12 bg-blue-400/20 rounded-lg flex items-center justify-center">
-                                <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="mt-4 flex items-center">
-                            <span class="text-green-500 text-sm font-medium">+8%</span>
-                            <span class="text-muted-foreground text-sm ml-2">from last month</span>
-                        </div>
-                    </div>
-
-                    <div class="stat-card p-6 rounded-lg">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-muted-foreground text-sm font-medium">High-Risk Entities</p>
-                                <p class="text-3xl font-bold text-purple-400" id="stat-entities">89</p>
-                            </div>
-                            <div class="w-12 h-12 bg-purple-400/20 rounded-lg flex items-center justify-center">
-                                <svg class="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="mt-4 flex items-center">
-                            <span class="text-green-500 text-sm font-medium">+15%</span>
-                            <span class="text-muted-foreground text-sm ml-2">from last week</span>
-                        </div>
-                    </div>
-
-                    <div class="stat-card p-6 rounded-lg">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-muted-foreground text-sm font-medium">Detections (30d)</p>
-                                <p class="text-3xl font-bold text-green-400" id="stat-detections">42</p>
-                            </div>
-                            <div class="w-12 h-12 bg-green-400/20 rounded-lg flex items-center justify-center">
-                                <svg class="w-6 h-6 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                            </div>
-                        </div>
-                        <div class="mt-4 flex items-center">
-                            <span class="text-green-500 text-sm font-medium">+23%</span>
-                            <span class="text-muted-foreground text-sm ml-2">from last month</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Charts and Tables -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <!-- Alert Trends Chart -->
-                    <div class="chart-container p-6 rounded-lg">
-                        <h3 class="text-lg font-semibold mb-4">Alert Trends (Last 7 Days)</h3>
-                        <div class="h-64 flex items-end justify-between space-x-2" id="chart-trends">
-                            <!-- Bars will go here -->
-                        </div>
-                    </div>
-
-                    <!-- Risk Distribution -->
-                    <div class="chart-container p-6 rounded-lg">
-                        <h3 class="text-lg font-semibold mb-4">Media Type Breakdown</h3>
-                        <div class="space-y-4" id="chart-media">
-                            <!-- Media bars will go here -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Recent Alerts Table -->
-                <div class="chart-container p-6 rounded-lg">
-                    <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-lg font-semibold">Recent Alerts</h3>
-                        <button class="px-4 py-2 bg-primary text-primary-foreground rounded-lg text-sm font-medium hover:bg-primary/90 transition-colors">
-                            View All
-                        </button>
-                    </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead>
-                                <tr class="border-b border-border">
-                                    <th class="text-left py-3 px-4 font-medium text-muted-foreground">ID</th>
-                                    <th class="text-left py-3 px-4 font-medium text-muted-foreground">Platform</th>
-                                    <th class="text-left py-3 px-4 font-medium text-muted-foreground">User</th>
-                                    <th class="text-left py-3 px-4 font-medium text-muted-foreground">Risk</th>
-                                    <th class="text-left py-3 px-4 font-medium text-muted-foreground">Text snippet</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recent-alerts-tbody">
-                                <!-- Table rows will be injected here via JS -->
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                </div> <!-- End of Dashboard Page -->
-
-                <!-- EVIDENCE PAGE -->
-                <div id="page-evidence" class="page-section hidden">
-                    <div class="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 class="text-2xl font-bold text-primary">Cryptographic Evidence Ledger</h2>
-                            <p class="text-muted-foreground">Immutable packages securely hashed for prosecution.</p>
-                        </div>
-                    </div>
-                    <div class="grid gap-6" id="evidence-container">
-                        <!-- Evidence cards injected here -->
-                    </div>
-                </div>
-
-                <!-- REPORTS PAGE -->
-                <div id="page-reports" class="page-section hidden">
-                    <div class="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 class="text-2xl font-bold text-primary">Reports</h2>
-                            <p class="text-muted-foreground">Filtered detection summaries with export.</p>
-                        </div>
-                    </div>
-
-                    <div class="chart-container p-6 rounded-lg mb-6">
-                        <div class="grid grid-cols-2 md:grid-cols-5 gap-4 items-end">
-                            <div>
-                                <label class="text-xs text-muted-foreground">From</label>
-                                <input type="date" id="report-from" class="w-full bg-transparent border border-border rounded px-2 py-1 text-sm">
-                            </div>
-                            <div>
-                                <label class="text-xs text-muted-foreground">To</label>
-                                <input type="date" id="report-to" class="w-full bg-transparent border border-border rounded px-2 py-1 text-sm">
-                            </div>
-                            <div>
-                                <label class="text-xs text-muted-foreground">Platform</label>
-                                <select id="report-platform" class="w-full bg-transparent border border-border rounded px-2 py-1 text-sm">
-                                    <option value="">All</option>
-                                    <option value="telegram">Telegram</option>
-                                    <option value="instagram">Instagram</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label class="text-xs text-muted-foreground">Min Risk</label>
-                                <input type="number" id="report-minrisk" min="0" max="10" value="0" class="w-full bg-transparent border border-border rounded px-2 py-1 text-sm">
-                            </div>
-                            <div class="flex space-x-2">
-                                <button onclick="updateReports()" class="px-3 py-2 bg-red-600 hover:bg-red-700 rounded text-sm font-medium w-full">Run</button>
-                                <button onclick="downloadReportCsv()" class="px-3 py-2 bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 rounded text-sm font-medium w-full">CSV</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                        <div class="chart-container p-4 rounded-lg">
-                            <p class="text-xs text-muted-foreground">Total</p>
-                            <p id="report-total" class="text-2xl font-bold">-</p>
-                        </div>
-                        <div class="chart-container p-4 rounded-lg">
-                            <p class="text-xs text-muted-foreground">High Risk</p>
-                            <p id="report-high" class="text-2xl font-bold text-red-400">-</p>
-                        </div>
-                        <div class="chart-container p-4 rounded-lg">
-                            <p class="text-xs text-muted-foreground">Medium Risk</p>
-                            <p id="report-medium" class="text-2xl font-bold text-orange-400">-</p>
-                        </div>
-                        <div class="chart-container p-4 rounded-lg">
-                            <p class="text-xs text-muted-foreground">Low Risk</p>
-                            <p id="report-low" class="text-2xl font-bold text-green-400">-</p>
-                        </div>
-                    </div>
-
-                    <div class="grid md:grid-cols-2 gap-6">
-                        <div class="chart-container p-6 rounded-lg">
-                            <h3 class="font-bold mb-3">Top Keywords</h3>
-                            <table class="w-full text-sm">
-                                <tbody id="report-keywords-tbody"></tbody>
-                            </table>
-                        </div>
-                        <div class="chart-container p-6 rounded-lg">
-                            <h3 class="font-bold mb-3">Top Accounts</h3>
-                            <table class="w-full text-sm">
-                                <tbody id="report-accounts-tbody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <!-- NETWORK MAP PAGE -->
-                <div id="page-network" class="page-section hidden">
-                    <div class="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 class="text-2xl font-bold text-primary">Entity Network Map</h2>
-                            <p class="text-muted-foreground">AI-driven relationship mapping (Sellers, Buyers, Crypto, Phones)</p>
-                        </div>
-                            <div class="flex space-x-2 text-xs">
-                            <span class="px-2 py-1 bg-red-500/20 text-red-400 rounded">&#9679; High Risk</span>
-                            <span class="px-2 py-1 bg-blue-500/20 text-blue-400 rounded">&#9679; Accounts</span>
-                            <span class="px-2 py-1 bg-purple-500/20 text-purple-400 rounded">&#9670; Groups</span>
-                            <span class="px-2 py-1 bg-green-500/20 text-green-400 rounded">&#9632; Phones</span>
-                            <span class="px-2 py-1 bg-amber-500/20 text-amber-400 rounded">&#9650; UPI</span>
-                        </div>
-                    </div>
-                    <div id="network-controls" class="mb-2"></div>
-                    <div id="network-map-container"></div>
-                    </div>
-                    <div id="network-map-container"></div>
-                </div>
-
-                <!-- ALERTS PAGE -->
-                <div id="page-alerts" class="page-section hidden">
-                    <div class="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 class="text-2xl font-bold">Live Alerts Feed</h2>
-                            <p class="text-muted-foreground">Real-time stream of high-risk drug trafficking detections.</p>
-                        </div>
-                    </div>
-                    <div class="chart-container p-6 rounded-lg">
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead>
-                                    <tr class="border-b border-border">
-                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Time</th>
-                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Platform</th>
-                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">User</th>
-                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Risk</th>
-                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Message</th>
-                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="alerts-page-tbody">
-                                    <!-- Alerts will appear here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div> <!-- End of Alerts Page -->
-
-                <!-- TELEGRAM PAGE -->
-                <div id="page-telegram" class="page-section hidden">
-                    <div class="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 class="text-2xl font-bold text-blue-400">Telegram Operations</h2>
-                            <p class="text-muted-foreground">Monitor webhook ingested Telegram data.</p>
-                        </div>
-                        <div class="stat-card p-4 rounded-lg flex items-center space-x-4">
-                            <div>
-                                <p class="text-sm text-muted-foreground">Webhook Status</p>
-                                <p id="telegram-webhook-status" class="text-lg font-bold text-green-400">Loading...</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="flex items-center space-x-4 mb-4">
-                        <input type="number" id="tg-min-risk" value="4" class="bg-input text-foreground border border-border rounded px-3 py-1 w-24" placeholder="Min Risk">
-                        <input type="number" id="tg-days" value="30" class="bg-input text-foreground border border-border rounded px-3 py-1 w-24" placeholder="Days">
-                        <button onclick="updateTelegram()" class="px-4 py-1 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded transition-colors">Refresh</button>
-                    </div>
-
-                    <div class="chart-container p-6 rounded-lg">
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead>
-                                    <tr class="border-b border-border">
-                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Time</th>
-                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Chat</th>
-                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">User</th>
-                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Risk</th>
-                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Message</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="telegram-page-tbody">
-                                    <!-- Telegram data will appear here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div> <!-- End of Telegram Page -->
-
-                <!-- INSTAGRAM PAGE -->
-                <div id="page-instagram" class="page-section hidden">
-                    <div class="flex items-center justify-between mb-6">
-                        <div>
-                            <h2 class="text-2xl font-bold text-pink-500">Instagram Operations</h2>
-                            <p class="text-muted-foreground">Monitor webhook ingested Instagram DMs and Comments.</p>
-                        </div>
-                    </div>
-                    <div class="chart-container p-6 rounded-lg">
-                        <div class="overflow-x-auto">
-                            <table class="w-full">
-                                <thead>
-                                    <tr class="border-b border-border">
-                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Time</th>
-                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Chat</th>
-                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">User</th>
-                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Risk</th>
-                                        <th class="text-left py-3 px-4 font-medium text-muted-foreground">Message</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="instagram-page-tbody">
-                                    <!-- Instagram data will appear here -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div> <!-- End of Instagram Page -->
-
-                <!-- SETTINGS PAGE -->
-                <div id="page-settings" class="page-section hidden">
-                    <h2 class="text-2xl font-bold mb-6">System Settings</h2>
-                    <div class="grid gap-6 md:grid-cols-2">
-                        <div class="chart-container p-6 rounded-lg">
-                            <h3 class="text-lg font-semibold mb-4 text-primary">Connected Sources</h3>
-                            <ul class="space-y-3">
-                                <li class="flex items-center justify-between"><span class="text-muted-foreground">Telegram Bot</span> <span class="text-green-400">Connected &#10003</span></li>
-                                <li class="flex items-center justify-between"><span class="text-muted-foreground">Instagram Graph API</span> <span class="text-green-400">Connected &10003</span></li>
-                                <li class="flex items-center justify-between"><span class="text-muted-foreground">WhatsApp</span> <span class="text-red-400">Not Supported (E2E Encrypted)</span></li>
-                            </ul>
-                        </div>
-                        <div class="chart-container p-6 rounded-lg">
-                            <h3 class="text-lg font-semibold mb-4 text-primary">Risk Thresholds</h3>
-                            <ul class="space-y-3">
-                                <li class="flex items-center justify-between"><span class="text-red-400">High Risk</span> <span class="font-mono">Score >= 7</span></li>
-                                <li class="flex items-center justify-between"><span class="text-orange-400">Medium Risk</span> <span class="font-mono">Score 4 - 6</span></li>
-                                <li class="flex items-center justify-between"><span class="text-green-400">Low Risk</span> <span class="font-mono">Score < 4</span></li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="mt-6 p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm text-center">
-                        <strong>LEGAL NOTICE:</strong> Human review required before any enforcement action. All data must be handled according to the DPDP Act.
-                    </div>
-                </div> <!-- End of Settings Page -->
-            </main>
+        <div class="flex items-center">
+            <span class="mr-2">Language: English</span>
         </div>
     </div>
 
-    <!-- We will include api.js here in the next step -->
-    <script src="js/api.js"></script>
-    <script src="js/main.js"></script>
-    
-    <script>
-        // Update current time
-        function updateTime() {
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('en-US', { 
-                hour12: false,
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-            document.getElementById('current-time').textContent = timeString;
-        }
+    <!-- Gov Header -->
+    <div class="gov-header shadow-sm">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg" alt="Emblem of India" class="h-16 mr-6">
+        <div class="flex-grow">
+            <h1 class="text-xl font-bold text-gray-800">राष्ट्रीय नारकोएक्स पोर्टल</h1>
+            <h2 class="text-2xl font-bold text-gray-900 tracking-tight">National NarcoX Intelligence Portal</h2>
+        </div>
+        <div class="text-right text-sm text-gray-500 mr-4">
+            Authorized Personnel Only
+        </div>
+        <div class="w-10 h-10 bg-primary text-white rounded-full flex items-center justify-center font-bold text-lg">
+            JD
+        </div>
+    </div>
+
+    <!-- Gov Navigation -->
+    <div class="gov-nav shadow-md">
+        <a class="nav-item active" onclick="switchTab('dashboard')">Dashboard</a>
+        <a class="nav-item" onclick="switchTab('telegram')">Telegram Operations</a>
+        <a class="nav-item" onclick="switchTab('instagram')">Instagram Intelligence</a>
+        <a class="nav-item" onclick="switchTab('evidence')">Evidence Vault</a>
+        <a class="nav-item" onclick="switchTab('network')">Network Map</a>
+        <a class="nav-item" onclick="switchTab('reports')">Generate Reports</a>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="flex-1 p-6 max-w-7xl mx-auto w-full">
         
-        updateTime();
-        setInterval(updateTime, 1000);
+        <!-- DASHBOARD VIEW -->
+        <div id="view-dashboard" class="page-section">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-800">Intelligence Dashboard</h2>
+                    <p class="text-gray-500">Real-time law enforcement intelligence system</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-sm text-gray-500">Current Time</div>
+                    <div id="clock" class="font-mono text-primary font-bold">--:--:--</div>
+                </div>
+            </div>
 
-        // Sidebar navigation & Page Switching
-        document.querySelectorAll('.sidebar-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                // e.preventDefault(); // allow hash to update in URL
-                document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-                this.classList.add('active');
+            <!-- Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="stat-card p-6">
+                    <h3 class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Total Scans</h3>
+                    <div class="text-4xl font-bold mt-2 text-gray-800" id="stat-total">0</div>
+                    <div class="text-sm text-green-600 mt-2">↑ Active monitoring</div>
+                </div>
+                <div class="stat-card p-6">
+                    <h3 class="text-gray-500 text-sm font-semibold uppercase tracking-wider">High Risk</h3>
+                    <div class="text-4xl font-bold mt-2 text-red-600" id="stat-high">0</div>
+                    <div class="text-sm text-red-500 mt-2">Requires immediate action</div>
+                </div>
+                <div class="stat-card p-6">
+                    <h3 class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Suspect Phones</h3>
+                    <div class="text-4xl font-bold mt-2 text-orange-500" id="stat-phones">0</div>
+                    <div class="text-sm text-gray-500 mt-2">Extracted numbers</div>
+                </div>
+                <div class="stat-card p-6">
+                    <h3 class="text-gray-500 text-sm font-semibold uppercase tracking-wider">Crypto Wallets</h3>
+                    <div class="text-4xl font-bold mt-2 text-blue-500" id="stat-crypto">0</div>
+                    <div class="text-sm text-gray-500 mt-2">Bitcoin/USDT addresses</div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="chart-container p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Alert Trends (Last 7 Days)</h3>
+                    <div class="h-64 flex items-end gap-2" id="trend-chart">
+                        <!-- Bars injected via JS -->
+                    </div>
+                </div>
+                <div class="chart-container p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-gray-800">Risk Distribution</h3>
+                    <div class="flex h-64 items-center justify-center">
+                        <div class="w-full space-y-4">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-red-600 font-bold">High Risk (7-10)</span>
+                                    <span id="dist-high">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-red-600 h-2 rounded-full" id="bar-high" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-orange-500 font-bold">Medium Risk (4-6)</span>
+                                    <span id="dist-med">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-orange-500 h-2 rounded-full" id="bar-med" style="width: 0%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span class="text-green-500 font-bold">Low Risk (1-3)</span>
+                                    <span id="dist-low">0%</span>
+                                </div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-500 h-2 rounded-full" id="bar-low" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELEGRAM VIEW -->
+        <div id="view-telegram" class="page-section hidden">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-primary">Telegram Operations</h2>
+                    <p class="text-gray-500">Monitor webhook ingested Telegram data.</p>
+                </div>
+                <div class="stat-card px-4 py-2 text-sm">
+                    Webhook Status<br>
+                    <span class="text-green-600 font-bold">Active: https://narcox-two.vercel.app/api/telegram/webhook</span>
+                </div>
+            </div>
+
+            <div class="stat-card p-6">
+                <div class="flex items-center gap-4 mb-6 pb-4 border-b border-gray-200">
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-500">Min Risk:</label>
+                        <input type="number" id="tg-min-risk" value="4" min="0" max="10" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-primary focus:border-primary block w-16 p-2">
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <label class="text-sm text-gray-500">Limit:</label>
+                        <input type="number" id="tg-limit" value="30" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded focus:ring-primary focus:border-primary block w-20 p-2">
+                    </div>
+                    <button onclick="loadTelegramData()" class="bg-primary hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition">
+                        Refresh Data
+                    </button>
+                </div>
                 
-                // Hide all pages, show the target page
-                const targetId = this.getAttribute('href').replace('#', 'page-');
-                document.querySelectorAll('.page-section').forEach(page => page.classList.add('hidden'));
-                const targetPage = document.getElementById(targetId);
-                if (targetPage) targetPage.classList.remove('hidden');
-            });
-        });
-    </script>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr>
+                                <th>Time</th>
+                                <th>Chat</th>
+                                <th>User</th>
+                                <th>Risk</th>
+                                <th>Message / AI Vision</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tg-table-body">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- EVIDENCE VAULT VIEW -->
+        <div id="view-evidence" class="page-section hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Evidence Vault</h2>
+            <p class="text-gray-500 mb-6">Cryptographically signed and hashed intelligence packages for court admissibility.</p>
+            
+            <div class="stat-card p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-lg font-bold">Secure Evidence Packages</h3>
+                    <button onclick="loadEvidenceVault()" class="bg-primary hover:bg-blue-700 text-white py-1 px-3 rounded text-sm transition">Refresh Vault</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Platform</th>
+                                <th>Target User</th>
+                                <th>SHA-256 Hash</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="evidence-table-body">
+                            <tr><td colspan="5" class="text-center py-8 text-gray-400">Loading vault...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
+        <!-- NETWORK MAP VIEW -->
+        <div id="view-network" class="page-section hidden">
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Network Map</h2>
+            <p class="text-gray-500 mb-6">Link analysis of high-risk entities (phones, usernames, crypto wallets).</p>
+            
+            <div class="stat-card p-1 h-[600px] relative">
+                <div id="network-container" class="w-full h-full bg-gray-50 rounded"></div>
+                <button onclick="renderNetwork()" class="absolute top-4 left-4 bg-white border border-gray-300 text-gray-800 px-3 py-1 rounded shadow-sm text-sm hover:bg-gray-50 z-10">
+                    Refresh Graph
+                </button>
+            </div>
+        </div>
+
+        <!-- Instagram and Reports Placeholders -->
+        <div id="view-instagram" class="page-section hidden">
+            <h2 class="text-2xl font-bold text-primary mb-6">Instagram Intelligence</h2>
+            <div class="stat-card p-12 text-center text-gray-500">
+                <p class="text-lg mb-2">Instagram API Integration Pending</p>
+                <p class="text-sm">Connect official Instagram Graph API webhook in settings.</p>
+            </div>
+        </div>
+
+        <div id="view-reports" class="page-section hidden">
+            <h2 class="text-2xl font-bold text-primary mb-6">Generate Reports</h2>
+            <div class="stat-card p-12 text-center text-gray-500">
+                <p class="text-lg mb-2">PDF Report Generator</p>
+                <p class="text-sm">Compile high-risk alerts into an official PDF dossier.</p>
+                <button class="mt-4 bg-primary text-white px-4 py-2 rounded opacity-50 cursor-not-allowed">Generate Dossier</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Replace old navigation logic in main.js with new top nav logic -->
     <script>
-        document.querySelector('a[href="#reports"]').addEventListener('click', function() {
-            updateReports();
-        });
+        function switchTab(tabId) {
+            // Update active state in nav
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // Show corresponding section
+            document.querySelectorAll('.page-section').forEach(el => el.classList.add('hidden'));
+            const target = document.getElementById('view-' + tabId);
+            if (target) {
+                target.classList.remove('hidden');
+            }
+            
+            // Trigger specific renders
+            if (tabId === 'telegram') loadTelegramData();
+            if (tabId === 'evidence') loadEvidenceVault();
+            if (tabId === 'network') renderNetwork();
+        }
     </script>
+    <script src="js/main.js"></script>
 </body>
 </html>
-
-
-
