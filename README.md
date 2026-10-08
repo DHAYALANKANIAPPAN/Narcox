@@ -27,5 +27,3 @@ NarcoX is an AI platform designed to detect online drug trafficking on public Te
 2. View the real-time polling of alerts.
 3. Click "Evidence" to see cryptographic hashing in action.
 4. Click "Network Map" to explore entity relationships.
-
-<!-- Deployment pipeline verified -->
