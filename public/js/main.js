@@ -1,4 +1,4 @@
-﻿// public/js/main.js
+// public/js/main.js
 
 async function updateDashboard() {
     // 1. Fetch our data! (This will read from mock.json for now)
@@ -108,9 +108,9 @@ async function updateTelegram() {
             
             // Format explanations nicely
             const reasonsHtml = (det.reasons || []).map(r => `<li>- ${esc(r)}</li>`).join('');
-            const imageHtml = (det.imageLabels && det.imageLabels.length > 0) ? `<li>📸 AI found: ${esc(det.imageLabels.join(', '))}</li>` : '';
+            const imageHtml = (det.imageLabels && det.imageLabels.length > 0) ? `<li>?? AI found: ${esc(det.imageLabels.join(', '))}</li>` : '';
             const idents = det.identifiers || {};
-            const phonesHtml = (idents.phones || []).map(p => `<li>ðŸ“ž ${esc(p)}</li>`).join('');
+            const phonesHtml = (idents.phones || []).map(p => `<li>📞 ${esc(p)}</li>`).join('');
             
             tr.innerHTML = `
                 <td class="py-3 px-4 text-sm text-gray-500">${timeStr}</td>
@@ -178,7 +178,7 @@ async function updateInstagram() {
             
             const simulatedTag = det.simulated ? `<span class="ml-2 px-2 py-0.5 bg-yellow-500/20 text-yellow-500 text-[10px] rounded uppercase">Simulated</span>` : '';
             const reasonsHtml = (det.reasons || []).map(r => `<li>- ${esc(r)}</li>`).join('');
-            const imageHtml = (det.imageLabels && det.imageLabels.length > 0) ? `<li>📸 AI found: ${esc(det.imageLabels.join(', '))}</li>` : '';
+            const imageHtml = (det.imageLabels && det.imageLabels.length > 0) ? `<li>?? AI found: ${esc(det.imageLabels.join(', '))}</li>` : '';
             
             tr.innerHTML = `
                 <td class="py-3 px-4 text-sm text-gray-500">${timeStr}</td>
@@ -216,8 +216,8 @@ async function updateEvidence() {
 
     evidence.forEach(ev => {
         const verifiedBadge = ev.verified 
-            ? `<span class="hash-verified text-sm px-3 py-1 bg-green-500/10 border border-green-500/30 rounded">âœ“ HASH VERIFIED</span>`
-            : `<span class="text-sm px-3 py-1 bg-red-500/10 border border-red-500/30 text-red-500 rounded">âœ— TAMPERED</span>`;
+            ? `<span class="hash-verified text-sm px-3 py-1 bg-green-500/10 border border-green-500/30 rounded">✓ HASH VERIFIED</span>`
+            : `<span class="text-sm px-3 py-1 bg-red-500/10 border border-red-500/30 text-red-500 rounded">✗ TAMPERED</span>`;
             
         const custodyHtml = ev.custody.map(c => 
             `<div class="flex justify-between text-xs text-gray-500"><span class="font-mono">${c.action} by ${c.by}</span> <span>${new Date(c.at).toLocaleString()}</span></div>`
@@ -270,28 +270,27 @@ async function updateNetwork() {
     const edgeList = Object.values(merged);
 
     // 2. Node styling by type/risk
-    const palette = { account: '#3b82f6', group: '#a855f7', phones: '#22c55e',
-                      upi: '#f59e0b', wallets: '#eab308', emails: '#06b6d4' };
-    const shapes = { account: 'dot', group: 'diamond', phones: 'square',
-                     upi: 'triangle', wallets: 'star', emails: 'hexagon' };
+    const palette = { account: '#38bdf8', group: '#a78bfa', phones: '#34d399',
+                      upi: '#fbbf24', wallets: '#f472b6', emails: '#22d3ee' };
     const info = {};
     const nodes = new vis.DataSet(data.nodes.map(n => {
         info[n.id] = n;
-        const base = palette[n.type] || '#64748b';
+        const base = palette[n.type] || '#94a3b8';
         const hot = n.risk >= 8;
+        const ring = n.type === 'group';
         return {
             id: n.id,
             label: n.label,
-            shape: shapes[n.type] || 'dot',
-            value: Math.max(4, n.risk * 2 + (n.degree || 0) * 3),
+            shape: 'dot',
+            value: Math.max(6, n.risk * 2 + (n.degree || 0) * 3),
             color: {
-                background: hot ? '#ef4444' : base,
-                border: hot ? '#fecaca' : '#111',
-                highlight: { background: '#fff', border: '#ef4444' }
+                background: hot ? '#ff3b3b' : base,
+                border: ring ? '#e5e7eb' : (hot ? '#ffb3b3' : 'rgba(255,255,255,0.25)'),
+                highlight: { background: '#fef2f2', border: '#ef4444' }
             },
-            borderWidth: hot ? 3 : 1,
-            shadow: hot ? { enabled: true, color: 'rgba(239,68,68,0.7)', size: 25, x: 0, y: 0 } : false,
-            font: { color: '#e5e7eb', size: 13, face: 'monospace', strokeWidth: 3, strokeColor: '#000' },
+            borderWidth: ring ? 3 : (hot ? 3 : 1.5),
+            shadow: { enabled: true, color: 'rgba(0,0,0,0.1)', size: 10, x: 2, y: 2 },
+            font: { color: '#0f172a', size: 13, face: 'Inter, ui-sans-serif, system-ui', strokeWidth: 3, strokeColor: '#ffffff' },
             title: `${n.label}\nType: ${n.type}\nRisk: ${n.risk}/10\nConnections: ${n.degree || 0}` +
                    (n.role ? `\nRole: ${n.role}` : '')
         };
@@ -301,7 +300,7 @@ async function updateNetwork() {
         id: i, from: e.from, to: e.to,
         width: Math.min(1 + Math.log2(e.weight + 1) * 1.5, 8),
         title: `${e.kind} x${e.weight}`,
-        color: { color: '#525252', highlight: '#ef4444', opacity: 0.7 },
+        color: { color: '#94a3b8', highlight: '#ef4444', opacity: 0.8 },
         smooth: { type: 'continuous' },
         arrows: { to: { enabled: true, scaleFactor: 0.5 } }
     })));
@@ -321,8 +320,8 @@ async function updateNetwork() {
     if (!panel) {
         panel = document.createElement('div');
         panel.id = 'network-panel';
-        panel.style.cssText = 'position:absolute;top:12px;right:12px;width:230px;background:rgba(10,10,10,.92);' +
-            'border:1px solid #333;border-radius:8px;padding:12px;font-size:12px;color:#e5e7eb;display:none;z-index:5';
+        panel.style.cssText = 'position:absolute;top:12px;right:12px;width:230px;background:rgba(255,255,255,0.95);box-shadow:0 4px 6px -1px rgba(0,0,0,0.1);' +
+            'border:1px solid #cbd5e1;border-radius:10px;padding:14px;font-size:12px;color:#0f172a;display:none;z-index:5;backdrop-filter:blur(4px)';
         container.style.position = 'relative';
         container.appendChild(panel);
     }
@@ -350,8 +349,8 @@ async function updateNetwork() {
     const bar = document.getElementById('network-controls');
     if (bar && !bar.dataset.ready) {
         bar.dataset.ready = '1';
-        bar.innerHTML = `<input id="net-search" placeholder="Search account..." style="background:#111;border:1px solid #333;color:#fff;padding:4px 8px;border-radius:6px;font-size:12px"> ` +
-            `<button id="net-fit" style="background:#dc2626;color:#fff;padding:4px 10px;border-radius:6px;font-size:12px">Fit</button>`;
+        bar.innerHTML = `<input id="net-search" placeholder="Search account..." style="background:#0b1220;border:1px solid #1e293b;color:#f1f5f9;padding:6px 12px;border-radius:8px;font-size:12px;width:200px"> ` +
+            `<button id="net-fit" style="background:#38bdf8;color:#05070a;font-weight:600;padding:6px 14px;border-radius:8px;font-size:12px;margin-left:8px">Fit View</button>`;
         document.getElementById('net-fit').onclick = () => netInstance.fit({ animation: true });
         document.getElementById('net-search').oninput = ev => {
             const q = ev.target.value.toLowerCase();
@@ -480,4 +479,9 @@ async function updateReports() {
 function downloadReportCsv() {
     window.open(`/api/stats?${reportQueryString({ format: 'csv' })}`, '_blank');
 }
+
+
+
+
+
 

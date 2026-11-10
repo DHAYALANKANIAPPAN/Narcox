@@ -115,7 +115,7 @@ module.exports = async (req, res) => {
     ];
     const trend = await db.collection('detections').aggregate(trendPipeline).toArray();
 
-    const recent = await db.collection('detections').find().sort({ ts: -1 }).limit(5).toArray();
+    const recent = await db.collection('detections').find().sort({ ts: -1 }).limit(10).toArray();
 
     res.status(200).json({
       totalAlerts,
